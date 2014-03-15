@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<children><Label layoutX="249.0" layoutY="14.0" text="Chi tiet khach hang" /><Label layoutX="70.0" layoutY="93.0" text="Ten khach hang" /><Label layoutX="70.0" layoutY="58.0" text="Ma so" /><Label layoutX="70.0" layoutY="128.0" text="Nguoi lien lac" /><TextField fx:id="codeTxt" layoutX="164.0" layoutY="54.0" prefHeight="25.0" prefWidth="200.0" /><TextField fx:id="nameTxt" layoutX="163.0" layoutY="89.0" prefHeight="25.0" prefWidth="300.0" /><TextField fx:id="contactPersonTxt" layoutX="164.0" layoutY="124.0" prefHeight="25.0" prefWidth="200.0" /><TextField fx:id="addressTxt" layoutX="163.0" layoutY="160.0" prefHeight="25.0" prefWidth="300.0" /><TextField fx:id="phoneTxt" layoutX="164.0" layoutY="200.0" /><Label layoutX="70.0" layoutY="164.0" text="Dia chi" /><Label layoutX="70.0" layoutY="204.0" text="Dien thoai" /><TextField fx:id="emailTxt" layoutX="164.0" layoutY="238.0" prefHeight="25.0" prefWidth="300.0" /><TextArea fx:id="commentTxt" layoutX="164.0" layoutY="278.0" prefHeight="70.0" prefWidth="300.0" /><Label layoutX="70.0" layoutY="242.0" text="Email" /><Label layoutX="70.0" layoutY="304.5" text="Ghi chu" /><Button fx:id="okBtn" layoutX="412.0" layoutY="361.0" mnemonicParsing="false" onAction="#registerCustomer" prefHeight="25.0" prefWidth="52.0" text="OK" /><Button fx:id="cancelBtn" layoutX="478.1875" layoutY="361.0" mnemonicParsing="false" text="Cancel" />
+</children></AnchorPane>

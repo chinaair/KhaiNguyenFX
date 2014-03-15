@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<children><Button fx:id="gotoProductBtn" layoutX="14.1875" layoutY="14.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="96.0" text="San pham" textAlignment="CENTER" /><Button fx:id="gotoQohBtn" alignment="CENTER_LEFT" layoutX="127.0" layoutY="14.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="96.0" text="Quan ly hang ton kho" textAlignment="CENTER" wrapText="true" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" /><Button fx:id="gotoSaleBtn" layoutX="14.0" layoutY="122.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="96.0" text="Ban hang" textAlignment="CENTER" /><Button fx:id="gotoImportParcelBtn" layoutX="238.0" layoutY="14.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="96.0" text="Nhap hang" textAlignment="CENTER" /><Button fx:id="gotoCustomerBtn" layoutX="127.0" layoutY="122.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="96.0" text="Khach hang" textAlignment="CENTER" /><Button fx:id="gotoSaleListBtn" layoutX="238.0" layoutY="122.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="96.0" text="Danh sach ban hang" textAlignment="CENTER" wrapText="true" /><Button fx:id="summaryBtn" layoutX="14.0" layoutY="230.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="96.0" text="Tong ket" textAlignment="CENTER" />
+</children></AnchorPane>

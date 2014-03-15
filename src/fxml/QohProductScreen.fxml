@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<children><Label layoutX="186.0" layoutY="13.0" text="Danh sách hàng tồn kho" AnchorPane.topAnchor="10.0">
+<font>
+<Font name="System Bold" size="20.0" />
+</font></Label><TableView fx:id="inventoryTableView" layoutX="12.0" layoutY="28.0" prefHeight="244.0" prefWidth="377.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0" xmlns:fx="http://javafx.com/fxml">
+  <columns>
+    <TableColumn fx:id="productCodeColumn" prefWidth="108.0" text="Mã sản phẩm" />
+    <TableColumn fx:id="productNameColumn" prefWidth="250.0" text="Tên sản phẩm" /><TableColumn fx:id="qohColumn" prefWidth="100.0" text="Tồn kho" /><TableColumn fx:id="totalColumn" prefWidth="120.0" text="Tổng trị giá" />
+  </columns>
+</TableView><CheckBox fx:id="displayOutOfStock" layoutX="12.2890625" layoutY="272.0" maxHeight="17.0" minHeight="17.0" mnemonicParsing="false" prefHeight="17.0" text="Hiền thị cả sản phẩm đã bán hết" AnchorPane.bottomAnchor="18.0" AnchorPane.leftAnchor="10.0" /><Button fx:id="backBtn" layoutX="521.1875" layoutY="360.5" maxHeight="25.0" minHeight="25.0" mnemonicParsing="false" prefHeight="25.0" text="Quay về" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+</children></AnchorPane>

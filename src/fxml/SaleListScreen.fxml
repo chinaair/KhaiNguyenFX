@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<children><Label layoutX="205.0" layoutY="14.0" text="Danh sách bán hàng" AnchorPane.topAnchor="10.0">
+<font>
+<Font name="System Bold" size="20.0" />
+</font></Label><TableView fx:id="saleTableView" layoutX="14.0" layoutY="23.0" prefHeight="330.0" prefWidth="572.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0" xmlns:fx="http://javafx.com/fxml">
+  <columns>
+    <TableColumn fx:id="saleDateCol" prefWidth="100.0" text="Ngày xuất" /><TableColumn fx:id="customerCol" prefWidth="110.0" text="Khách hàng" /><TableColumn fx:id="statusCol" text="Tình trạng" />
+    <TableColumn fx:id="debtAmtCol" prefWidth="100.0" text="Còn nợ" /><TableColumn fx:id="descriptionCol" prefWidth="180.0" text="Ghi chú" />
+  </columns>
+</TableView><Button fx:id="backBtn" layoutX="526.0" layoutY="361.0" mnemonicParsing="false" text="Quay về" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+</children></AnchorPane>
