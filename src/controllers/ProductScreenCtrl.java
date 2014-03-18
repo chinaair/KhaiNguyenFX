@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
 
+import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
 import org.datafx.controller.FXMLController;
@@ -29,7 +30,6 @@ import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FlowAction;
 
 import components.ContextCellFactory;
-
 import entity.Inventory;
 import entity.Product;
 
@@ -114,6 +114,21 @@ public class ProductScreenCtrl {
 			@Override
 			public void handle(ActionEvent event) {
 				Product currentProduct = productTableView.getSelectionModel().getSelectedItem();
+				Long importQuantity = em
+						.createQuery(
+								"select count(p) from ParcelItem p where p.product.id = :productId",
+								Long.class).setParameter("productId", currentProduct.getId()).getSingleResult();
+				Long saleQuantity = em
+						.createQuery(
+								"select count(s) from SaleItem s where s.product.id = :productId",
+								Long.class).setParameter("productId", currentProduct.getId()).getSingleResult();
+				if((importQuantity != null && importQuantity > 0)
+						|| (saleQuantity != null && saleQuantity > 0)) {
+					Dialogs.create().nativeTitleBar().title("Error")
+					.message("Product are being used!")
+					.showError();
+					return;
+				}
 				List<Inventory> inventoryList = em.createQuery("select i from Inventory i where i.product.id = :productId", Inventory.class)
 				.setParameter("productId", currentProduct.getId())
 				.getResultList();
@@ -147,7 +162,7 @@ public class ProductScreenCtrl {
 			public void handle(ActionEvent event) {
 				viewContext.register("isUpdate", "0");
 				viewContext.register("editingProduct", productTableView.getSelectionModel().getSelectedItem());
-				viewContext.register("editingList", productTableView.getItems());
+				//viewContext.register("editingList", productTableView.getItems());
 				editItemBtn.fire();
 			}
 		});

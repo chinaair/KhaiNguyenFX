@@ -1,11 +1,6 @@
 package controllers;
 
-import java.math.BigDecimal;
 import java.util.Date;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.persistence.EntityManager;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,6 +9,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.persistence.EntityManager;
+
+import org.controlsfx.dialog.Dialogs;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.context.ApplicationContext;
 import org.datafx.controller.context.FXMLApplicationContext;
@@ -22,8 +22,6 @@ import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FlowAction;
 
 import entity.Customer;
-import entity.Inventory;
-import entity.Product;
 
 @FXMLController("/fxml/EditCustomerScreen.fxml")
 public class EditCustomerScreenCtrl {
@@ -66,6 +64,9 @@ public class EditCustomerScreenCtrl {
 	@FXML
 	public void registerCustomer(ActionEvent event) {
 		String isUpdate = (String)viewContext.getRegisteredObject("isUpdate");
+		if(!checkValid()) {
+			return;
+		}
 		if("1".equals(isUpdate)) {
 			updateCustomer();
 		} else {
@@ -92,8 +93,8 @@ public class EditCustomerScreenCtrl {
 	}
 	
 	private void insertCustomer() {
-		ObservableList<Customer> cList = (ObservableList<Customer>)viewContext
-				.getRegisteredObject("editingList");
+		/*ObservableList<Customer> cList = (ObservableList<Customer>)viewContext
+				.getRegisteredObject("editingList");*/
 		em.getTransaction().begin();
 		Customer updateObj = new Customer();
 		updateObj.setCode(codeTxt.getText());
@@ -106,9 +107,9 @@ public class EditCustomerScreenCtrl {
 		updateObj.setLastupdate(new Date());
 		em.persist(updateObj);
 		em.getTransaction().commit();
-		if(cList!=null) {
+		/*if(cList!=null) {
 			cList.add(updateObj);
-		}
+		}*/
 	}
 	
 	@PostConstruct
@@ -129,6 +130,18 @@ public class EditCustomerScreenCtrl {
 	@PreDestroy
 	public void destroy() {
 		
+	}
+	
+	private boolean checkValid() {
+		if(codeTxt.getText().isEmpty()
+				|| nameTxt.getText().isEmpty()) {
+			Dialogs.create().nativeTitleBar()
+		      .title("Error")
+		      .message( "Please fill the information...")
+		      .showError();
+			return false;
+		}
+		return true;
 	}
 
 }

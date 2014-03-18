@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -50,6 +51,7 @@ import entity.ImportParcel;
 import entity.Inventory;
 import entity.ParcelItem;
 import entity.Product;
+import entity.SaleItem;
 
 @FXMLController("/fxml/ImportParcelScreen.fxml")
 public class ImportParcelScreenCtrl {
@@ -80,8 +82,20 @@ public class ImportParcelScreenCtrl {
 	@FXML
 	private TextArea parcel_des_txt;
 	
+	@FXML
+	private Button selectProductBtn;
+	
+	@FXML
+	private Button removeProductBtn;
+	
+	@FXML
+	private Button registerParcelBtn;
+	
 	@FlowAction("gotoMain")
 	private Button gotoMainMenuBtn = new Button();
+	
+	@FlowAction("gotoParcelList")
+	private Button gotoParcelListBtn = new Button();
 	
 	private ImportParcel editingParcel;
 	
@@ -90,6 +104,7 @@ public class ImportParcelScreenCtrl {
 	private final TextField quantity_txt = new TextField();
 	private final TextField cost_vnd_txt = new TextField();
 	private final TextField cost_rmb_txt = new TextField();
+	private final Label total_vnd_cost = new Label();
 	
 	private BigDecimal rate;
 	
@@ -124,6 +139,7 @@ public class ImportParcelScreenCtrl {
             			parcelItemLst.getItems().add(item);
             		}
     				dlg.hide();
+    				resetParcelItemCellFactory();
     			} else {
     				Dialogs.create().nativeTitleBar()
     			      .title("Error")
@@ -159,6 +175,7 @@ public class ImportParcelScreenCtrl {
 				.getResultList();
 		ObservableList<Product> pObservableList =
 				FXCollections.observableArrayList(productList);
+		productLst.setItems(pObservableList);
 		productLst.setCellFactory(new Callback<ListView<Product>, ListCell<Product>>() {
 			
 			@Override
@@ -175,29 +192,26 @@ public class ImportParcelScreenCtrl {
 				return cell;
 			}
 		});
-		parcelItemLst.setCellFactory(new Callback<ListView<ParcelItem>, ListCell<ParcelItem>>() {
-			
-			@Override
-			public ListCell<ParcelItem> call(ListView<ParcelItem> param) {
-				ListCell<ParcelItem> cell = new ListCell<ParcelItem>(){
-					@Override
-					protected void updateItem(ParcelItem t, boolean bln) {
-						super.updateItem(t, bln);
-						if(t != null) {
-							setText(t.getProduct().getName()+ " (Qty: " + t.getQuantity() + ", Cost RMB: "+ t.getCost_rmb() +", Cost VND: "+ t.getCost_vnd() +")");
-						}
-					}
-				};
-				return cell;
-			}
-		});
-		productLst.setItems(pObservableList);
 		
-		if("1".equals(mode) && editingParcel != null) {
+		resetParcelItemCellFactory();
+		
+		if(("1".equals(mode) || "2".equals(mode)) && editingParcel != null) {//update or view
 			parcel_code_txt.setText(editingParcel.getCode());
+			parcel_rate_txt.setText(editingParcel.getRate().toPlainString());
+			parcel_des_txt.setText(editingParcel.getDescription());
 			Instant instant = Instant.ofEpochMilli(editingParcel.getImportDate().getTime());
 			LocalDate res = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
 			import_date_txt.setValue(res);
+			ObservableList<ParcelItem> obserSaleItems = FXCollections.observableArrayList(editingParcel.getParcelItems());
+			parcelItemLst.setItems(obserSaleItems);
+			if("2".equals(mode)) {
+				import_date_txt.setDisable(true);
+				parcel_rate_txt.setEditable(false);
+				parcel_des_txt.setEditable(false);
+				selectProductBtn.setDisable(true);
+				removeProductBtn.setDisable(true);
+				registerParcelBtn.setDisable(true);
+			}
 		} else {
 			editingParcel = new ImportParcel();
 			String parcelCode = Util.generateString();
@@ -236,6 +250,7 @@ public class ImportParcelScreenCtrl {
 			return;
 		}
 		parcelItemLst.getItems().remove(selectItem);
+		resetParcelItemCellFactory();
 	}
 	
 	@FXML
@@ -255,8 +270,38 @@ public class ImportParcelScreenCtrl {
 		GregorianCalendar cal = GregorianCalendar.from(import_date_txt.getValue().atStartOfDay().atZone(ZoneId.systemDefault()));
 		editingParcel.setImportDate(cal.getTime());
 		editingParcel.setLastUpdate(new Date());
+		editingParcel.setStatus("0");
 		editingParcel.setRate(new BigDecimal(parcel_rate_txt.getText()));
-		em.persist(editingParcel);
+		if("1".equals(mode)) {
+			em.merge(editingParcel);
+			for(ParcelItem item : editingParcel.getParcelItems()) {
+				List<Inventory> invList = em
+						.createQuery(
+								"SELECT i FROM Inventory i WHERE i.product.id = :productid",
+								Inventory.class)
+						.setParameter("productid", item.getProduct().getId())
+						.getResultList();
+				if(invList!=null && !invList.isEmpty()) {
+					Inventory invProd = invList.get(0);
+					if(invProd.getQoh() > item.getQuantity()) {
+						invProd.setQoh(invProd.getQoh() - item.getQuantity());
+					} else {
+						invProd.setQoh(0L);
+					}
+					BigDecimal itemValue = item.getCost_vnd().multiply(new BigDecimal(item.getQuantity()));
+					if(invProd.getTotalValue().compareTo(itemValue) > 0) {
+						invProd.setTotalValue(invProd.getTotalValue().subtract(itemValue));
+					} else {
+						invProd.setTotalValue(new BigDecimal(0));
+					}
+					em.merge(invProd);
+				}
+			}
+			
+			em.createQuery("DELETE FROM ParcelItem p WHERE p.parcel.id = :parcelId").setParameter("parcelId", editingParcel.getId()).executeUpdate();
+		} else {
+			em.persist(editingParcel);
+		}
 		//insert parcel items
 		Date lastUpdate = new Date();
 		BigDecimal totalValue = new BigDecimal(0);
@@ -279,11 +324,20 @@ public class ImportParcelScreenCtrl {
 		em.merge(editingParcel);
 		em.getTransaction().commit();
 		resetFields();
+		if("1".equals(mode)) {
+			gotoParcelListBtn.fire();
+		}
 	}
 	
 	@FXML
 	public void returnPrevious() {
-		gotoMainMenuBtn.fire();
+		viewContext.register("isUpdate", null);
+		viewContext.register("editingSale", null);
+		if("1".equals(mode) || "2".equals(mode)) {
+			gotoParcelListBtn.fire();
+		} else {
+			gotoMainMenuBtn.fire();
+		}
 	}
 	
 	private Action showInputInfoDialog() {
@@ -291,18 +345,25 @@ public class ImportParcelScreenCtrl {
 		GridPane content = new GridPane();
 	     content.setHgap(10);
 	     content.setVgap(10);
+	     quantity_txt.setText("");
 	     content.add(new Label("Quantity"), 0, 0);
 	     content.add(quantity_txt, 1, 0);
 	     GridPane.setHgrow(quantity_txt, Priority.ALWAYS);
+	     cost_rmb_txt.setText("");
 	     content.add(new Label("Cost in RMB"), 0, 1);
 	     content.add(cost_rmb_txt, 1, 1);
 	     GridPane.setHgrow(cost_rmb_txt, Priority.ALWAYS);
 	     content.add(new Label("Cost in VND"), 0, 2);
-	     cost_vnd_txt.setEditable(false);
+	     cost_vnd_txt.setText("");
+	     cost_vnd_txt.setEditable(true);
 	     content.add(cost_vnd_txt, 1, 2);
 	     GridPane.setHgrow(cost_vnd_txt, Priority.ALWAYS);
+	     total_vnd_cost.setText("0");
+	     content.add(new Label("Total cost"), 0, 3);
+	     content.add(total_vnd_cost, 1, 3);
 	     
 	     quantity_txt.focusedProperty().addListener(txtLostFocusListener);
+	     cost_rmb_txt.focusedProperty().addListener(txtLostFocusListener);
 	     cost_rmb_txt.focusedProperty().addListener(txtLostFocusListener);
 	     
 	     // create the dialog with a custom graphic and the gridpane above as the
@@ -353,7 +414,29 @@ public class ImportParcelScreenCtrl {
 		if(isNumber(cost_rmb_txt.getText()) && isNumber(quantity_txt.getText())) {
 			BigDecimal costRMB = new BigDecimal(cost_rmb_txt.getText());
 			BigDecimal quantity = new BigDecimal(quantity_txt.getText());
-			cost_vnd_txt.setText(costRMB.multiply(rate).multiply(quantity).toPlainString());
+			BigDecimal costVND = costRMB.multiply(rate);
+			cost_vnd_txt.setText(costVND.toPlainString());
+			total_vnd_cost.setText(costVND.multiply(quantity).toPlainString());
+		}
+	}
+	
+	private void resetParcelItemCellFactory() {
+		parcelItemLst.setCellFactory(new Callback<ListView<ParcelItem>, ListCell<ParcelItem>>() {
+			@Override
+			public ListCell<ParcelItem> call(ListView<ParcelItem> param) {
+				return new parcelCell();
+			}
+		});
+	}
+	
+	static class parcelCell extends ListCell<ParcelItem> {
+		@Override
+		protected void updateItem(ParcelItem t, boolean bln) {
+			super.updateItem(t, bln);
+			if(t != null) {
+				String dispStr = t.getProduct().getName()+ " (Qty: " + t.getQuantity() + ", Cost RMB: "+ t.getCost_rmb() +", Cost VND: "+ t.getCost_vnd() +")";
+				setText(dispStr);
+			}
 		}
 	}
 

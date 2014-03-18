@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
 
+import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
 import org.datafx.controller.FXMLController;
@@ -29,7 +30,6 @@ import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FlowAction;
 
 import components.ContextCellFactory;
-
 import entity.Customer;
 
 @FXMLController("/fxml/CustomerScreen.fxml")
@@ -73,6 +73,7 @@ public class CustomerScreenCtrl {
 	@PostConstruct
 	public void init() {
 		em = (EntityManager)appCtx.getRegisteredObject("em");
+		em.clear();
 		List<Customer> custList = em.createQuery("select cust from Customer cust", Customer.class).getResultList();
 		ObservableList<Customer> cObservableList = FXCollections.observableArrayList(custList);
 		ContextMenu rowMenu = createContextMenu();
@@ -115,6 +116,16 @@ public class CustomerScreenCtrl {
 			@Override
 			public void handle(ActionEvent event) {
 				Customer currentCustomer = customerTableView.getSelectionModel().getSelectedItem();
+				Long custQuantity = em
+						.createQuery(
+								"select count(s) from Sale s where s.customer.id = :customerId",
+								Long.class).setParameter("customerId", currentCustomer.getId()).getSingleResult();
+				if(custQuantity != null && custQuantity > 0) {
+					Dialogs.create().nativeTitleBar().title("Error")
+					.message("Customer are being used!")
+					.showError();
+					return;
+				}
 				em.getTransaction().begin();
 				Customer removeObj = em.find(Customer.class, currentCustomer.getId());
 				if(removeObj!=null) {
@@ -134,7 +145,7 @@ public class CustomerScreenCtrl {
 			public void handle(ActionEvent event) {
 				viewContext.register("isUpdate", "0");
 				viewContext.register("editingCustomer", customerTableView.getSelectionModel().getSelectedItem());
-				viewContext.register("editingList", customerTableView.getItems());
+				//viewContext.register("editingList", customerTableView.getItems());
 				editCustBtn.fire();
 			}
 		});

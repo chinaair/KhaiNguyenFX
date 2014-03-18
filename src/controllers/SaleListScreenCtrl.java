@@ -155,6 +155,14 @@ public class SaleListScreenCtrl {
 		if(cellFactory==null) {
 			return;
 		}
+		cellFactory.setViewItemAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				viewContext.register("isUpdate", "2");
+				viewContext.register("editingSale", saleTableView.getSelectionModel().getSelectedItem());
+				editSaleBtn.fire();
+			}
+		});
 		cellFactory.setEditItemAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {

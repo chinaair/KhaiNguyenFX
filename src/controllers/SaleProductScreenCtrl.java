@@ -3,6 +3,7 @@ package controllers;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -36,6 +37,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -62,6 +64,7 @@ import org.datafx.controller.flow.FlowAction;
 
 import application.Util;
 import entity.Customer;
+import entity.ImportParcel;
 import entity.Inventory;
 import entity.ParcelItem;
 import entity.Product;
@@ -101,8 +104,19 @@ public class SaleProductScreenCtrl {
     private ViewFlowContext viewContext;
 	
 	@FXML
-	
 	private Button cancelBtn;
+	
+	@FXML
+	private Button chooseCustBtn;
+	
+	@FXML
+	private Button selectProductBtn;
+	
+	@FXML
+	private Button removeProductBtn;
+	
+	@FXML
+	private Button registerSaleBtn;
 	
 	@FlowAction("gotoMain")
 	private Button backToMainBtn = new Button();
@@ -186,6 +200,7 @@ public class SaleProductScreenCtrl {
             		inventoryList.setItems(null);
             		inventoryList.setItems(tmpList);
     				dlg.hide();
+    				resetSaleItemCellFactory();
     			} else {
     				Dialogs.create().nativeTitleBar()
     			      .title("Error")
@@ -202,6 +217,7 @@ public class SaleProductScreenCtrl {
 	@PostConstruct
 	public void init() {
 		mode = (String)viewContext.getRegisteredObject("isUpdate");
+		editingSale = (Sale)viewContext.getRegisteredObject("editingSale");
 		em = (EntityManager)appCtx.getRegisteredObject("em");
 		em.clear();
 		List<Customer> custList = em.createQuery("select cust from Customer cust", Customer.class).getResultList();
@@ -225,24 +241,9 @@ public class SaleProductScreenCtrl {
 				return cell;
 			}
 		});
-		saleItemList.setCellFactory(new Callback<ListView<SaleItem>, ListCell<SaleItem>>() {
-			
-			@Override
-			public ListCell<SaleItem> call(ListView<SaleItem> param) {
-				ListCell<SaleItem> cell = new ListCell<SaleItem>(){
-					@Override
-					protected void updateItem(SaleItem s, boolean bln) {
-						super.updateItem(s, bln);
-						if(s != null) {
-							setText(s.getProduct().getName()+ " (" + s.getQuantity() + ")");
-						}
-					}
-				};
-				return cell;
-			}
-		});
-		editingSale = (Sale)viewContext.getRegisteredObject("editingSale");
-		if("1".equals(mode) && editingSale!=null) {
+		resetSaleItemCellFactory();
+		
+		if(("1".equals(mode) || "2".equals(mode)) && editingSale!=null) {
 			Instant instant = Instant.ofEpochMilli(editingSale.getSaleDate().getTime());
 			LocalDate res = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalDate();
 			saleDate.setValue(res);
@@ -251,6 +252,15 @@ public class SaleProductScreenCtrl {
 			descriptionTxt.setText(editingSale.getDescription());
 			ObservableList<SaleItem> obserSaleItems = FXCollections.observableArrayList(editingSale.getSaleItems());
 			saleItemList.setItems(obserSaleItems);
+			if("2".equals(mode)) {
+				chooseCustBtn.setDisable(true);
+				saleDate.setEditable(false);
+				saleDate.setDisable(true);
+				descriptionTxt.setEditable(false);
+				selectProductBtn.setDisable(true);
+				removeProductBtn.setDisable(true);
+				registerSaleBtn.setDisable(true);
+			}
 		} else {
 			editingSale = new Sale();
 			saleDate.setValue(LocalDate.now());
@@ -327,7 +337,7 @@ public class SaleProductScreenCtrl {
 		if("1".equals(mode)) {//mode update
 			em.merge(editingSale);
 			List<SaleItem> itemList = em.createQuery("SELECT s FROM SaleItem s WHERE s.sale.id = :saleId", SaleItem.class).setParameter("saleId", editingSale.getId()).getResultList();
-			if(itemList != null) {
+			if(itemList != null) {//revert inventory quantity
 				for(SaleItem item : itemList) {
 					ParcelItem pi = item.getParcelItem();
 					pi.setRemain(pi.getRemain() + new Long(item.getQuantity()));
@@ -338,12 +348,19 @@ public class SaleProductScreenCtrl {
 		} else {
 			em.persist(editingSale);
 		}
+		Map<Long, ImportParcel> mergedImportParcel = new HashMap<>();
 		for(SaleItem item : saleItemList.getItems()) {
 			item.setSale(editingSale);
 			item.setLastupdate(lastUpdate);
-			ParcelItem saleParcelItem = item.getParcelItem();
+			ParcelItem saleParcelItem = em.find(ParcelItem.class, item.getParcelItem().getId());
 			saleParcelItem.setRemain(saleParcelItem.getRemain() - item.getQuantity());
 			em.merge(saleParcelItem);
+			ImportParcel parcel = saleParcelItem.getParcel();
+			if(!mergedImportParcel.containsKey(parcel.getId())) {
+				parcel.setStatus("1");
+				em.merge(parcel);
+				mergedImportParcel.put(parcel.getId(), parcel);
+			}
 			em.persist(item);
 		}
 		for(Inventory inv : inventoryList.getItems()) {
@@ -354,6 +371,9 @@ public class SaleProductScreenCtrl {
 		printReport(editingSale, saleItemList.getItems());
 		resetFields();
 		em.clear();
+		if("1".equals(mode)) {
+			backToSaleList.fire();
+		}
 	}
 	
 	@FXML
@@ -371,12 +391,32 @@ public class SaleProductScreenCtrl {
 						super.updateItem(i, bln);
 						if(i != null) {
 							setText(i.getCost_vnd()+ " (" + dFormat.format(i.getParcel().getImportDate()) + ")");
+						} else {
+							setText(null);
 						}
 					}
 				};
 				return cell;
 			}
 		});
+		itemsFromSaleCB.setConverter(new StringConverter<ParcelItem>() {
+			private ParcelItem item;
+			SimpleDateFormat dFormat = new SimpleDateFormat("dd/MM/yyyy");
+			@Override
+			public String toString(ParcelItem object) {
+				if(object != null) {
+					item = object;
+					return object.getCost_vnd()+ " (" + dFormat.format(object.getParcel().getImportDate()) + ")";
+				}
+				return null;
+			}
+			
+			@Override
+			public ParcelItem fromString(String string) {
+				return item;
+			}
+		});
+		itemsFromSaleCB.getSelectionModel().select(0);
 		Dialog dlg = new Dialog(null, "Input information");
 		GridPane content = new GridPane();
 		content.setHgap(10);
@@ -384,9 +424,11 @@ public class SaleProductScreenCtrl {
 		content.add(new Label("Dot hang"), 0, 0);
 		content.add(itemsFromSaleCB, 1, 0);
 		GridPane.setHgrow(itemsFromSaleCB, Priority.ALWAYS);
+		quantity_txt.setText("");
 		content.add(new Label("So luong"), 0, 1);
 		content.add(quantity_txt, 1, 1);
 		GridPane.setHgrow(quantity_txt, Priority.ALWAYS);
+		salePrice_txt.setText("");
 		content.add(new Label("Gia ban"), 0, 2);
 		content.add(salePrice_txt, 1, 2);
 		GridPane.setHgrow(salePrice_txt, Priority.ALWAYS);
@@ -425,11 +467,14 @@ public class SaleProductScreenCtrl {
 		ObservableList<Inventory> tmpList = inventoryList.getItems();
 		inventoryList.setItems(null);
 		inventoryList.setItems(tmpList);
+		resetSaleItemCellFactory();
 	}
 	
 	@FXML
 	private void backToPreviousScreen(ActionEvent event) {
-		if("1".equals(mode)) {
+		viewContext.register("isUpdate", null);
+		viewContext.register("editingSale", null);
+		if("1".equals(mode) || "2".equals(mode)) {
 			backToSaleList.fire();
 		} else {
 			backToMainBtn.fire();
@@ -467,16 +512,17 @@ public class SaleProductScreenCtrl {
 	private void printReport(Sale sale, List<SaleItem> saleItemList) {
 		//Sale sale = em.find(Sale.class, 2L);
 		//List<SaleItem> saleItemList = sale.getSaleItems();
-		String jasperPath = "";
+		InputStream jasperFileStream = null;
 		try {
 			String jasperFileName = "saleInvoice.jasper";
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
-			Enumeration<URL> names = cl.getResources("jasper/" + jasperFileName);
+			/*Enumeration<URL> names = cl.getResources("jasper/" + jasperFileName);
 			while (names.hasMoreElements()) {
 				URL jasperUrl = names.nextElement();
 				jasperPath = jasperUrl.getPath();
 				break;
-			}
+			}*/
+			jasperFileStream = cl.getResourceAsStream("jasper/" + jasperFileName);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -506,9 +552,15 @@ public class SaleProductScreenCtrl {
 		}
 		JRBeanCollectionDataSource datasource = new JRBeanCollectionDataSource(saleItemList);
 		try {
-			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperPath, parameters, datasource);
-			JasperExportManager.exportReportToPdfFile(jasperPrint, "sample_report.pdf");
-			File pdfFile = new File("sample_report.pdf");
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperFileStream, parameters, datasource);
+			String folderName = "PDF";
+			File pdfFolder = new File(folderName);
+			if(!pdfFolder.exists()) {
+				pdfFolder.mkdir();
+			}
+			String pdfFilePath = folderName + "/" + sale.getId() + "_invoice.pdf";
+			JasperExportManager.exportReportToPdfFile(jasperPrint, pdfFilePath);
+			File pdfFile = new File(pdfFilePath);
 			if (pdfFile.exists()) {
 				if(Desktop.isDesktopSupported()) {
 					Desktop.getDesktop().open(pdfFile);
@@ -532,6 +584,26 @@ public class SaleProductScreenCtrl {
 			ioEx.printStackTrace();
 			Dialogs.create().nativeTitleBar().title("Error")
 					.message(ioEx.getMessage()).showError();
+		}
+	}
+	
+	private void resetSaleItemCellFactory() {
+		saleItemList
+				.setCellFactory(new Callback<ListView<SaleItem>, ListCell<SaleItem>>() {
+					@Override
+					public ListCell<SaleItem> call(ListView<SaleItem> param) {
+						return new SaleItemCell();
+					}
+				});
+	}
+	
+	static class SaleItemCell extends ListCell<SaleItem> {
+		@Override
+		protected void updateItem(SaleItem s, boolean bln) {
+			super.updateItem(s, bln);
+			if(s != null) {
+				setText(s.getProduct().getName()+ " (" + s.getQuantity() + ")");
+			}
 		}
 	}
 

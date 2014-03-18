@@ -46,6 +46,10 @@ public class MainMenuCtrl {
 	@FlowAction("gotoSearchSummary")
 	private Button summaryBtn;
 	
+	@FXML
+	@FlowAction("gotoImportParcelList")
+	private Button parcelListBtn;
+	
 	public void gotoProductBtnOnclick(ActionEvent event) {
 		
 	}

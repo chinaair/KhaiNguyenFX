@@ -18,6 +18,7 @@ import org.datafx.controller.flow.FXMLFlowView;
 import controllers.CustomerScreenCtrl;
 import controllers.EditCustomerScreenCtrl;
 import controllers.EditProductScreenCtrl;
+import controllers.ImportListScreenCtrl;
 import controllers.ImportParcelScreenCtrl;
 import controllers.MainMenuCtrl;
 import controllers.ProductScreenCtrl;
@@ -80,6 +81,7 @@ public class Main extends Application {
 		FXMLFlowView saleListScreen = FXMLFlowView.create(SaleListScreenCtrl.class);
 		FXMLFlowView SearchSummaryScreen = FXMLFlowView.create(SearchScreenCtrl.class);
 		FXMLFlowView summaryScreen = FXMLFlowView.create(SummaryScreenCtrl.class);
+		FXMLFlowView parcelListScreen = FXMLFlowView.create(ImportListScreenCtrl.class);
 		mainMenuScreen.withChangeViewAction("gotoProduct", productScreen);
 		mainMenuScreen.withChangeViewAction("gotoQoh", qohProductScreen);
 		mainMenuScreen.withChangeViewAction("gotoImportParcel", importParcelScreen);
@@ -87,12 +89,14 @@ public class Main extends Application {
 		mainMenuScreen.withChangeViewAction("gotoCustomer", customerScreen);
 		mainMenuScreen.withChangeViewAction("gotoSaleList", saleListScreen);
 		mainMenuScreen.withChangeViewAction("gotoSearchSummary", SearchSummaryScreen);
+		mainMenuScreen.withChangeViewAction("gotoImportParcelList", parcelListScreen);
 		productScreen.withChangeViewAction("gotoEditProduct", editProductScreen);
 		productScreen.withChangeViewAction("gotoMain", mainMenuScreen);
 		editProductScreen.withChangeViewAction("backtoProduct", productScreen);
 		qohProductScreen.withChangeViewAction("gotoMain", mainMenuScreen);
 		qohProductScreen.withChangeViewAction("gotoImportParcel", importParcelScreen);
 		importParcelScreen.withChangeViewAction("gotoMain", mainMenuScreen);
+		importParcelScreen.withChangeViewAction("gotoParcelList", parcelListScreen);
 		customerScreen.withChangeViewAction("gotoMain", mainMenuScreen);
 		customerScreen.withChangeViewAction("gotoEditCustomer", editCustomerScreen);
 		editCustomerScreen.withChangeViewAction("backtoCustomerList", customerScreen);
@@ -103,6 +107,8 @@ public class Main extends Application {
 		SearchSummaryScreen.withChangeViewAction("gotoMain", mainMenuScreen);
 		SearchSummaryScreen.withChangeViewAction("gotoSummaryScreen", summaryScreen);
 		summaryScreen.withChangeViewAction("gotoSearchSummary", SearchSummaryScreen);
+		parcelListScreen.withChangeViewAction("gotoEditImport", importParcelScreen);
+		parcelListScreen.withChangeViewAction("gotoMain", mainMenuScreen);
 		
 		return mainMenuScreen;
 	}

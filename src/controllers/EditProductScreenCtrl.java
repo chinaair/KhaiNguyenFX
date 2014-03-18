@@ -3,7 +3,6 @@ package controllers;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -14,6 +13,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
 
+import org.controlsfx.dialog.Dialogs;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.context.ApplicationContext;
 import org.datafx.controller.context.FXMLApplicationContext;
@@ -50,22 +50,24 @@ public class EditProductScreenCtrl {
 	@FlowAction("backtoProduct")
 	private Button cancelBtn;
 
-	public Product getEditingProduct() {
-		return editingProduct;
-	}
-
-	public void setEditingProduct(Product editingProduct) {
-		this.editingProduct = editingProduct;
-	}
-	
 	@FXML
 	public void registerProduct(ActionEvent event) {
 		String isUpdate = (String)viewContext.getRegisteredObject("isUpdate");
+		if(productCodeTxt.getText().isEmpty()
+				|| productNameTxt.getText().isEmpty()) {
+			Dialogs.create().nativeTitleBar()
+		      .title("Error")
+		      .message( "Please fill the information...")
+		      .showError();
+			return;
+		}
 		if("1".equals(isUpdate)) {
 			updateProduct();
 		} else {
 			insertProduct();
 		}
+		viewContext.register("isUpdate", null);
+		viewContext.register("editingProduct", null);
 		cancelBtn.fire();
 	}
 	
@@ -84,8 +86,8 @@ public class EditProductScreenCtrl {
 	}
 	
 	private void insertProduct() {
-		ObservableList<Product> pList = (ObservableList<Product>)viewContext
-				.getRegisteredObject("editingList");
+		/*ObservableList<Product> pList = (ObservableList<Product>)viewContext
+				.getRegisteredObject("editingList");*/
 		em.getTransaction().begin();
 		Product updateObj = new Product();
 		updateObj.setCode(productCodeTxt.getText());
@@ -101,9 +103,9 @@ public class EditProductScreenCtrl {
 		inv.setTotalValue(BigDecimal.ZERO);
 		em.persist(inv);
 		em.getTransaction().commit();
-		if(pList!=null) {
+		/*if(pList!=null) {
 			pList.add(updateObj);
-		}
+		}*/
 	}
 	
 	@PostConstruct

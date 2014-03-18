@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<children><Label layoutX="199.0" layoutY="14.0" text="Danh sách nhập hàng" AnchorPane.topAnchor="10.0">
+<font>
+<Font name="System Bold" size="20.0" />
+</font>
+</Label><TableView fx:id="importListView" layoutX="14.0" layoutY="44.0" prefHeight="330.0" prefWidth="572.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0">
+<columns>
+<TableColumn fx:id="codeCol" prefWidth="100.0" text="Mã lô" />
+<TableColumn fx:id="dateCol" prefWidth="110.0" text="Ngày nhập" />
+<TableColumn fx:id="valueCol" text="Trị giá lô" />
+<TableColumn fx:id="rateCol" prefWidth="100.0" text="Tỷ giá" />
+<TableColumn fx:id="descriptionCol" prefWidth="180.0" text="Ghi chú" />
+</columns>
+</TableView><Button fx:id="backBtn" layoutX="526.0" layoutY="361.0" mnemonicParsing="false" text="Quay về" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+</children></AnchorPane>

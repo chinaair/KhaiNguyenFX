@@ -12,34 +12,31 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
-import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
 
-import entity.Sale;
+import entity.ImportParcel;
 
-public class SaleContextCellFactory implements Callback<TableColumn<Sale, String>, TableCell<Sale, String>> {
+public class ParcelContextCellFactory implements Callback<TableColumn<ImportParcel, String>, TableCell<ImportParcel, String>> {
 	
 	private ContextMenu menu;
 	private GlyphFont fontAwesome = GlyphFontRegistry.font("FontAwesome");
 	private MenuItem viewItem;
 	private MenuItem editItem;
 	private MenuItem deleteItem;
-	private MenuItem processItem;
 	
-	public SaleContextCellFactory() {
+	public ParcelContextCellFactory() {
 		super();
 		menu = new ContextMenu();
 		viewItem = new MenuItem("Xem", fontAwesome.fontColor(Color.GREEN).create("EYE_OPEN"));
 		editItem = new MenuItem("Sửa", fontAwesome.fontColor(Color.GOLD).create("EDIT"));
 		deleteItem = new MenuItem("Xóa", fontAwesome.fontColor(Color.RED).create("REMOVE"));
-		processItem = new MenuItem("Thu tiền", fontAwesome.fontColor(Color.CORNFLOWERBLUE).create("COPY"));
-		menu.getItems().addAll(viewItem, editItem, deleteItem, processItem);
+		menu.getItems().addAll(viewItem, editItem, deleteItem);
 	}
 
 	@Override
-	public TableCell<Sale, String> call(TableColumn<Sale, String> param) {
-		ContextTableCell<Sale, String> cell = new ContextTableCell<>();
+	public TableCell<ImportParcel, String> call(TableColumn<ImportParcel, String> param) {
+		ContextTableCell<ImportParcel, String> cell = new ContextTableCell<>();
 		if(menu!=null) {
 			cell.setContextMenu(menu);
 			cell.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
@@ -49,28 +46,22 @@ public class SaleContextCellFactory implements Callback<TableColumn<Sale, String
 					TableCell<?, ?> sourceCell = (TableCell<?, ?>)event.getSource();//TableCell<?, ?>
 					int clickedIndex = sourceCell.getIndex();
 					@SuppressWarnings("unchecked")
-					TableView<Sale> sourceTableView = (TableView<Sale>)sourceCell
+					TableView<ImportParcel> sourceTableView = (TableView<ImportParcel>)sourceCell
 							.getParent()//TableRow
 							.getParent()//Group
 							.getParent()//ClippedContainer
 							.getParent()//VirtualFlow
 							.getParent();
-					ObservableList<Sale> sourceData = sourceTableView.getItems();
+					ObservableList<ImportParcel> sourceData = sourceTableView.getItems();
 					try {
-						Sale selectSale = sourceData.get(clickedIndex);
+						ImportParcel selectParcel = sourceData.get(clickedIndex);
 						setDisableMenu(false);
-						if("0".equals(selectSale.getStatus())) {//chua thu
+						if("1".equals(selectParcel.getStatus())) {//da xuat kho
+							editItem.setDisable(true);
+							deleteItem.setDisable(true);
+						} else {// chua xuat kho
 							editItem.setDisable(false);
 							deleteItem.setDisable(false);
-							processItem.setDisable(false);
-						} else if("2".equals(selectSale.getStatus())) {//chua thu du
-							editItem.setDisable(true);
-							deleteItem.setDisable(true);
-							processItem.setDisable(false);
-						} else {// da thu du
-							editItem.setDisable(true);
-							deleteItem.setDisable(true);
-							processItem.setDisable(true);
 						}
 						sourceTableView.getSelectionModel().select(clickedIndex);
 					} catch(IndexOutOfBoundsException e) {
@@ -102,8 +93,4 @@ public class SaleContextCellFactory implements Callback<TableColumn<Sale, String
 		deleteItem.setOnAction(deleteItemAction);
 	}
 
-	public void setProcessItemAction(EventHandler<ActionEvent> processItemAction) {
-		processItem.setOnAction(processItemAction);
-	}
-	
 }

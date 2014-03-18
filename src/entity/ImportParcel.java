@@ -1,11 +1,13 @@
 package entity;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,7 +45,14 @@ public class ImportParcel {
 	@Column(name="IMPORTVALUE")
 	private BigDecimal importValue;
 	
-	@OneToMany(targetEntity=ParcelItem.class, mappedBy="parcel")
+	/**
+	 * 0: chua su dung / chua xuat kho
+	 * 1: da su dung / xuat kho
+	 */
+	@Column(name="STATUS")
+	private String status;
+	
+	@OneToMany(targetEntity=ParcelItem.class, mappedBy="parcel", fetch=FetchType.EAGER)
 	private List<ParcelItem> parcelItems;
 
 	public Long getId() {
@@ -108,6 +117,22 @@ public class ImportParcel {
 
 	public void setImportValue(BigDecimal importValue) {
 		this.importValue = importValue;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	public String getImportDateString() {
+		if(importDate!=null) {
+			SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+			return format.format(importDate);
+		}
+		return null;
 	}
 
 }
