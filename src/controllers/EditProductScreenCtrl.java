@@ -57,7 +57,7 @@ public class EditProductScreenCtrl {
 				|| productNameTxt.getText().isEmpty()) {
 			Dialogs.create().nativeTitleBar()
 		      .title("Error")
-		      .message( "Please fill the information...")
+		      .message( "Hãy nhập thông tin cần thiết...")
 		      .showError();
 			return;
 		}

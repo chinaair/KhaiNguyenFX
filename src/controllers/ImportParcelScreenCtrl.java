@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -51,7 +50,6 @@ import entity.ImportParcel;
 import entity.Inventory;
 import entity.ParcelItem;
 import entity.Product;
-import entity.SaleItem;
 
 @FXMLController("/fxml/ImportParcelScreen.fxml")
 public class ImportParcelScreenCtrl {
@@ -143,7 +141,7 @@ public class ImportParcelScreenCtrl {
     			} else {
     				Dialogs.create().nativeTitleBar()
     			      .title("Error")
-    			      .message( "Please correct the input data...")
+    			      .message( "Hãy nhập thông tin đúng định dạng...")
     			      .showError();
     				return;
     			}
@@ -229,9 +227,10 @@ public class ImportParcelScreenCtrl {
 	public void selectProduct(ActionEvent event) {
 		Product selectProduct = productLst.getSelectionModel().getSelectedItem();
 		if(selectProduct==null || !isNumber(parcel_rate_txt.getText())) {
+			//Please select a product to process and enter valid rate
 			Dialogs.create().nativeTitleBar()
 				      .title("Error")
-				      .message( "Please select a product to process and enter valid rate...")
+				      .message( "Hãy chọn 1 sản phẩm và nhập tỷ giá đúng...")
 				      .showError();
 			return;
 		}
@@ -243,9 +242,10 @@ public class ImportParcelScreenCtrl {
 	public void removeProduct(ActionEvent event) {
 		ParcelItem selectItem = parcelItemLst.getSelectionModel().getSelectedItem();
 		if(selectItem==null) {
+			//Plaese select an item to process
 			Dialogs.create().nativeTitleBar()
 		      .title("Error")
-		      .message( "Please select a item to process...")
+		      .message( "Hãy chọn 1 chi tiết...")
 		      .showError();
 			return;
 		}
@@ -258,9 +258,19 @@ public class ImportParcelScreenCtrl {
 		if(parcel_code_txt.getText().isEmpty()
 				|| import_date_txt.getValue()==null
 				|| !isNumber(parcel_rate_txt.getText())) {
+			//Please input correct data
 			Dialogs.create().nativeTitleBar()
 		      .title("Error")
-		      .message( "Please enter valid information ...")
+		      .message( "Hãy nhập thông tin đúng định dạng...")
+		      .showError();
+			return;
+		}
+		Long dupCount = em.createQuery("SELECT COUNT(i) FROM ImportParcel i WHERE i.code = :code", Long.class).setParameter("code", parcel_code_txt.getText()).getSingleResult();
+		if(dupCount != null && dupCount.intValue() > 0) {
+			//The parcel code is duplicated
+			Dialogs.create().nativeTitleBar()
+		      .title("Error")
+		      .message( "Mã số lô đã bị trùng...")
 		      .showError();
 			return;
 		}
@@ -341,25 +351,25 @@ public class ImportParcelScreenCtrl {
 	}
 	
 	private Action showInputInfoDialog() {
-		Dialog dlg = new Dialog(null, "Input information");
+		Dialog dlg = new Dialog(null, "Nhập thông tin", false, true);
 		GridPane content = new GridPane();
 	     content.setHgap(10);
 	     content.setVgap(10);
 	     quantity_txt.setText("");
-	     content.add(new Label("Quantity"), 0, 0);
+	     content.add(new Label("Số lượng"), 0, 0);
 	     content.add(quantity_txt, 1, 0);
 	     GridPane.setHgrow(quantity_txt, Priority.ALWAYS);
 	     cost_rmb_txt.setText("");
-	     content.add(new Label("Cost in RMB"), 0, 1);
+	     content.add(new Label("Giá RMB"), 0, 1);
 	     content.add(cost_rmb_txt, 1, 1);
 	     GridPane.setHgrow(cost_rmb_txt, Priority.ALWAYS);
-	     content.add(new Label("Cost in VND"), 0, 2);
+	     content.add(new Label("Giá VND"), 0, 2);
 	     cost_vnd_txt.setText("");
 	     cost_vnd_txt.setEditable(true);
 	     content.add(cost_vnd_txt, 1, 2);
 	     GridPane.setHgrow(cost_vnd_txt, Priority.ALWAYS);
 	     total_vnd_cost.setText("0");
-	     content.add(new Label("Total cost"), 0, 3);
+	     content.add(new Label("Tổng cộng"), 0, 3);
 	     content.add(total_vnd_cost, 1, 3);
 	     
 	     quantity_txt.focusedProperty().addListener(txtLostFocusListener);
@@ -434,7 +444,7 @@ public class ImportParcelScreenCtrl {
 		protected void updateItem(ParcelItem t, boolean bln) {
 			super.updateItem(t, bln);
 			if(t != null) {
-				String dispStr = t.getProduct().getName()+ " (Qty: " + t.getQuantity() + ", Cost RMB: "+ t.getCost_rmb() +", Cost VND: "+ t.getCost_vnd() +")";
+				String dispStr = t.getProduct().getName()+ " (SL: " + t.getQuantity() + ", RMB: "+ t.getCost_rmb() +", VND: "+ t.getCost_vnd() +")";
 				setText(dispStr);
 			}
 		}

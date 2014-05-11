@@ -1,6 +1,7 @@
 package entity;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -69,6 +70,14 @@ public class CollectMoney {
 	public Date getCollectDate() {
 		return collectDate;
 	}
+	
+	public String getCollectDateString() {
+		if(collectDate!=null) {
+			SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+			return format.format(collectDate);
+		}
+		return null;
+	}
 
 	public void setCollectDate(Date collectDate) {
 		this.collectDate = collectDate;
@@ -92,6 +101,13 @@ public class CollectMoney {
 
 	public Customer getCustomer() {
 		return customer;
+	}
+	
+	public String getCustomerName() {
+		if(customer!=null) {
+			return customer.getName();
+		}
+		return null;
 	}
 
 	public void setCustomer(Customer customer) {

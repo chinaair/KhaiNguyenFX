@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -14,7 +13,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -118,6 +117,9 @@ public class SaleProductScreenCtrl {
 	@FXML
 	private Button registerSaleBtn;
 	
+	@FXML
+	private CheckBox addressCheckbox;
+	
 	@FlowAction("gotoMain")
 	private Button backToMainBtn = new Button();
 	
@@ -168,11 +170,12 @@ public class SaleProductScreenCtrl {
             	Dialog dlg = (Dialog) ae.getSource();
             	if(isValidData()) {
             		Inventory selectedInventory = inventoryList.getSelectionModel().getSelectedItem();
+            		ParcelItem selectedParcelItem = itemsFromSaleCB.getSelectionModel().getSelectedItem();
             		Product invProduct = selectedInventory.getProduct();
             		int quantity = Integer.parseInt(quantity_txt.getText());
             		if(quantity > itemsFromSaleCB.getSelectionModel().getSelectedItem().getRemain().intValue()) {
 						Dialogs.create().nativeTitleBar().title("Error")
-								.message("Sale quantity can not be greater than quantity on hand")
+								.message("Số lượng bán không được lớn hơn số lượng tồn kho...")
 								.showError();
 						return;
             		}
@@ -181,7 +184,7 @@ public class SaleProductScreenCtrl {
             			if(item.getProduct().equals(invProduct)
             					&& item.getParcelItem().getId().equals(itemsFromSaleCB.getSelectionModel().getSelectedItem().getId())) {
             				item.setQuantity(item.getQuantity() + quantity);
-            				item.setParcelItem(itemsFromSaleCB.getSelectionModel().getSelectedItem());
+            				item.setParcelItem(selectedParcelItem);
             				item.setSalePrice(new BigDecimal(salePrice_txt.getText()));
             				added = true;
             				break;
@@ -196,6 +199,8 @@ public class SaleProductScreenCtrl {
             			saleItemList.getItems().add(item);
             		}
             		selectedInventory.setQoh(selectedInventory.getQoh() - quantity);
+            		BigDecimal remainValue = selectedInventory.getTotalValue().subtract(selectedParcelItem.getCost_vnd().multiply(new BigDecimal(quantity)));
+            		selectedInventory.setTotalValue(remainValue);
             		ObservableList<Inventory> tmpList = inventoryList.getItems();
             		inventoryList.setItems(null);
             		inventoryList.setItems(tmpList);
@@ -204,7 +209,7 @@ public class SaleProductScreenCtrl {
     			} else {
     				Dialogs.create().nativeTitleBar()
     			      .title("Error")
-    			      .message( "Please correct the input data...")
+    			      .message( "hãy nhập thông tin đúng định dạng...")
     			      .showError();
     				return;
     			}
@@ -271,7 +276,7 @@ public class SaleProductScreenCtrl {
 	
 	@FXML
 	public void openCustPopup(ActionEvent event) {
-		Dialog dlg = new Dialog(null, "Select customer");
+		Dialog dlg = new Dialog(null, "Chọn khách hàng", false, true);
 		GridPane content = new GridPane();
 		ColumnConstraints col = new ColumnConstraints();
 		col.setPercentWidth(100);
@@ -308,14 +313,14 @@ public class SaleProductScreenCtrl {
 		if(saleItemList.getItems().isEmpty()) {
 			Dialogs.create().nativeTitleBar()
 		      .title("Error")
-		      .message( "Please add at least one product...")
+		      .message( "Hãy chọn 1 sản phẩm...")
 		      .showError();
 			return;
 		}
 		if(currentSelectedCust==null) {
 			Dialogs.create().nativeTitleBar()
 		      .title("Error")
-		      .message( "Please select customer...")
+		      .message( "Hãy chọn khách hàng...")
 		      .showError();
 			return;
 		}
@@ -379,7 +384,19 @@ public class SaleProductScreenCtrl {
 	@FXML
 	public void selectProduct(ActionEvent event) {
 		Inventory selectedInventory = inventoryList.getSelectionModel().getSelectedItem();
-		List<ParcelItem> pItems =  em.createQuery("select pi from ParcelItem pi where pi.product.id = :productId and pi.remain > 0", ParcelItem.class).setParameter("productId", selectedInventory.getProduct().getId()).getResultList();
+		if(selectedInventory == null) {
+			Dialogs.create().nativeTitleBar()
+		      .title("Error")
+		      .message( "Hãy chọn 1 sản phẩm...")
+		      .showError();
+			return;
+		}
+		List<ParcelItem> pItems = em
+				.createQuery(
+						"select pi from ParcelItem pi where pi.product.id = :productId and pi.remain > 0",
+						ParcelItem.class)
+				.setParameter("productId",
+						selectedInventory.getProduct().getId()).getResultList();
 		itemsFromSaleCB.setItems(FXCollections.observableArrayList(pItems));
 		itemsFromSaleCB.setCellFactory(new Callback<ListView<ParcelItem>, ListCell<ParcelItem>>() {
 			SimpleDateFormat dFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -417,19 +434,19 @@ public class SaleProductScreenCtrl {
 			}
 		});
 		itemsFromSaleCB.getSelectionModel().select(0);
-		Dialog dlg = new Dialog(null, "Input information");
+		Dialog dlg = new Dialog(null, "Nhập thông tin", false, true);
 		GridPane content = new GridPane();
 		content.setHgap(10);
 		content.setVgap(10);
-		content.add(new Label("Dot hang"), 0, 0);
+		content.add(new Label("Đợt hàng"), 0, 0);
 		content.add(itemsFromSaleCB, 1, 0);
 		GridPane.setHgrow(itemsFromSaleCB, Priority.ALWAYS);
 		quantity_txt.setText("");
-		content.add(new Label("So luong"), 0, 1);
+		content.add(new Label("Số lượng"), 0, 1);
 		content.add(quantity_txt, 1, 1);
 		GridPane.setHgrow(quantity_txt, Priority.ALWAYS);
 		salePrice_txt.setText("");
-		content.add(new Label("Gia ban"), 0, 2);
+		content.add(new Label("Giá bán"), 0, 2);
 		content.add(salePrice_txt, 1, 2);
 		GridPane.setHgrow(salePrice_txt, Priority.ALWAYS);
 
@@ -460,6 +477,8 @@ public class SaleProductScreenCtrl {
 		for(Inventory inv : inventoryList.getItems()) {
 			if(inv.getProduct().getId().equals(selectedSaleItem.getProduct().getId())) {
 				inv.setQoh(inv.getQoh() + selectedSaleItem.getQuantity());
+				BigDecimal itemValue = selectedSaleItem.getParcelItem().getCost_vnd().multiply(new BigDecimal(selectedSaleItem.getQuantity()));
+				inv.setTotalValue(itemValue);
 				break;
 			}
 		}
@@ -547,8 +566,9 @@ public class SaleProductScreenCtrl {
 			parameters.put("TOTAL", totalPrice);
 			parameters.put("MONEYTEXT", Util.tranlate(totalPrice.toPlainString()));
 			parameters.put("SALEDAY", Util.leftPadStringWithChar(cal.get(Calendar.DAY_OF_MONTH) + "", 2, '0'));
-			parameters.put("SALEMONTH", Util.leftPadStringWithChar(cal.get(Calendar.MONTH) + "", 2, '0'));
+			parameters.put("SALEMONTH", Util.leftPadStringWithChar((cal.get(Calendar.MONTH) + 1) + "", 2, '0'));
 			parameters.put("SALEYEAR", cal.get(Calendar.YEAR) + "");
+			parameters.put("HASSADDRESS", addressCheckbox.isSelected());
 		}
 		JRBeanCollectionDataSource datasource = new JRBeanCollectionDataSource(saleItemList);
 		try {

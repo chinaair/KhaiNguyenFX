@@ -15,6 +15,7 @@ import org.datafx.controller.context.FXMLApplicationContext;
 import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FXMLFlowView;
 
+import controllers.CollectHistoryScreenCtrl;
 import controllers.CustomerScreenCtrl;
 import controllers.EditCustomerScreenCtrl;
 import controllers.EditProductScreenCtrl;
@@ -46,6 +47,7 @@ public class Main extends Application {
 					pane, flowContext);
 			Scene myScene = new Scene(pane);
 			primaryStage.setScene(myScene);
+			primaryStage.setTitle("Khai Nguyên");
 			primaryStage.setResizable(false);
 			primaryStage.show();
 		} catch(Exception e) {
@@ -79,6 +81,7 @@ public class Main extends Application {
 		FXMLFlowView editCustomerScreen = FXMLFlowView.create(EditCustomerScreenCtrl.class);
 		FXMLFlowView saleProductScreen = FXMLFlowView.create(SaleProductScreenCtrl.class);
 		FXMLFlowView saleListScreen = FXMLFlowView.create(SaleListScreenCtrl.class);
+		FXMLFlowView collecthistoryScreen = FXMLFlowView.create(CollectHistoryScreenCtrl.class);
 		FXMLFlowView SearchSummaryScreen = FXMLFlowView.create(SearchScreenCtrl.class);
 		FXMLFlowView summaryScreen = FXMLFlowView.create(SummaryScreenCtrl.class);
 		FXMLFlowView parcelListScreen = FXMLFlowView.create(ImportListScreenCtrl.class);
@@ -104,11 +107,15 @@ public class Main extends Application {
 		saleProductScreen.withChangeViewAction("gotoSaleList", saleListScreen);
 		saleListScreen.withChangeViewAction("gotoMain", mainMenuScreen);
 		saleListScreen.withChangeViewAction("gotoEditSale", saleProductScreen);
+		saleListScreen.withChangeViewAction("gotoSummary", summaryScreen);
+		saleListScreen.withChangeViewAction("gotoCollectHistory", collecthistoryScreen);
 		SearchSummaryScreen.withChangeViewAction("gotoMain", mainMenuScreen);
 		SearchSummaryScreen.withChangeViewAction("gotoSummaryScreen", summaryScreen);
 		summaryScreen.withChangeViewAction("gotoSearchSummary", SearchSummaryScreen);
+		summaryScreen.withChangeViewAction("gotoSaleList", saleListScreen);
 		parcelListScreen.withChangeViewAction("gotoEditImport", importParcelScreen);
 		parcelListScreen.withChangeViewAction("gotoMain", mainMenuScreen);
+		collecthistoryScreen.withChangeViewAction("gotoSaleList", saleListScreen);
 		
 		return mainMenuScreen;
 	}

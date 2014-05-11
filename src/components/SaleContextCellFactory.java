@@ -12,7 +12,6 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
-import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
 
@@ -26,6 +25,7 @@ public class SaleContextCellFactory implements Callback<TableColumn<Sale, String
 	private MenuItem editItem;
 	private MenuItem deleteItem;
 	private MenuItem processItem;
+	private MenuItem historyItem;
 	
 	public SaleContextCellFactory() {
 		super();
@@ -34,7 +34,8 @@ public class SaleContextCellFactory implements Callback<TableColumn<Sale, String
 		editItem = new MenuItem("Sửa", fontAwesome.fontColor(Color.GOLD).create("EDIT"));
 		deleteItem = new MenuItem("Xóa", fontAwesome.fontColor(Color.RED).create("REMOVE"));
 		processItem = new MenuItem("Thu tiền", fontAwesome.fontColor(Color.CORNFLOWERBLUE).create("COPY"));
-		menu.getItems().addAll(viewItem, editItem, deleteItem, processItem);
+		historyItem = new MenuItem("Lịch sử thu", fontAwesome.fontColor(Color.CORNFLOWERBLUE).create("COPY"));
+		menu.getItems().addAll(viewItem, editItem, deleteItem, processItem, historyItem);
 	}
 
 	@Override
@@ -104,6 +105,10 @@ public class SaleContextCellFactory implements Callback<TableColumn<Sale, String
 
 	public void setProcessItemAction(EventHandler<ActionEvent> processItemAction) {
 		processItem.setOnAction(processItemAction);
+	}
+	
+	public void setHistoryItemAction(EventHandler<ActionEvent> historyItemAction) {
+		historyItem.setOnAction(historyItemAction);
 	}
 	
 }

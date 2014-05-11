@@ -98,10 +98,10 @@ public class ProductScreenCtrl {
 	
 	private ContextMenu createContextMenu() {
 		ContextMenu rowMenu = new ContextMenu();
-		MenuItem editItem = new MenuItem("Sua", fontAwesome.fontColor(Color.GOLD).create("EDIT"));
-		MenuItem deleteItem = new MenuItem("Xoa", fontAwesome.fontColor(Color.RED).create("REMOVE"));
-		MenuItem copyItem = new MenuItem("Tham khao", fontAwesome.fontColor(Color.CORNFLOWERBLUE).create("COPY"));
-		MenuItem addItem = new MenuItem("Tao moi", fontAwesome.fontColor(Color.GREEN).create("PLUS"));
+		MenuItem editItem = new MenuItem("Sửa", fontAwesome.fontColor(Color.GOLD).create("EDIT"));
+		MenuItem deleteItem = new MenuItem("Xóa", fontAwesome.fontColor(Color.RED).create("REMOVE"));
+		MenuItem copyItem = new MenuItem("Tham khảo", fontAwesome.fontColor(Color.CORNFLOWERBLUE).create("COPY"));
+		MenuItem addItem = new MenuItem("Tạo mới", fontAwesome.fontColor(Color.GREEN).create("PLUS"));
 		editItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -182,41 +182,6 @@ public class ProductScreenCtrl {
 			menu.getItems().get(i).setDisable(true);
 		}
 	}
-	
-	/*public void displayEditProductDialog() {
-		Dialog editProductDialog = new Dialog(null, "Edit thong tin san pham");
-		editProductDialog.setResizable(false);
-		editProductDialog.setIconifiable(false);
-		//editProductDialog.setGraphic(fontAwesome.fontColor(Color.GREEN).fontSize(48).create("EDIT"));
-		FXMLLoader fxmlLoader = new FXMLLoader();
-		fxmlLoader.setLocation(getClass().getResource("/fxml/EditProductScreen.fxml"));
-		try {
-			AnchorPane pane = (AnchorPane)fxmlLoader.load();
-			EditProductScreenCtrl editProController = (EditProductScreenCtrl)fxmlLoader.getController();
-			editProController.setEditingProduct(productTableView.getSelectionModel().getSelectedItem());
-			editProController.setEntityManager(em);
-			editProductDialog.setContent(pane);
-			editProductDialog.getActions().addAll(getUpdateProductAction(), Dialog.Actions.CANCEL);
-			editProductDialog.show();
-		} catch(IOException e) {
-			System.out.println(e);
-		}
-	}
-	
-	private Action getUpdateProductAction() {
-		Action updateAction = new AbstractAction("Update") {
-			{
-				ButtonBar.setType(this, ButtonType.OK_DONE);
-			}
-			
-			@Override
-			public void execute(ActionEvent event) {
-				Dialog dlg = (Dialog)event.getSource();
-				dlg.hide();
-			}
-		};
-		return updateAction;
-	}*/
 	
 	@PreDestroy
 	public void destroy() {

@@ -14,7 +14,7 @@
     <properties>
       <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbc.JDBCDriver" />
       <property name="javax.persistence.jdbc.url"
-        value="jdbc:hsqldb:hsql://localhost/khainguyendb" />
+        value="jdbc:hsqldb:file:datafiles/khainguyendb" />
       <property name="javax.persistence.jdbc.user" value="SA" />
       <property name="javax.persistence.jdbc.password" value="" />
 

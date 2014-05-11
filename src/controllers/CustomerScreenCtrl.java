@@ -100,10 +100,10 @@ public class CustomerScreenCtrl {
 	
 	private ContextMenu createContextMenu() {
 		ContextMenu rowMenu = new ContextMenu();
-		MenuItem editItem = new MenuItem("Sua", fontAwesome.fontColor(Color.GOLD).create("EDIT"));
-		MenuItem deleteItem = new MenuItem("Xoa", fontAwesome.fontColor(Color.RED).create("REMOVE"));
-		MenuItem copyItem = new MenuItem("Tham khao", fontAwesome.fontColor(Color.CORNFLOWERBLUE).create("COPY"));
-		MenuItem addItem = new MenuItem("Tao moi", fontAwesome.fontColor(Color.GREEN).create("PLUS"));
+		MenuItem editItem = new MenuItem("Sửa", fontAwesome.fontColor(Color.GOLD).create("EDIT"));
+		MenuItem deleteItem = new MenuItem("Xóa", fontAwesome.fontColor(Color.RED).create("REMOVE"));
+		MenuItem copyItem = new MenuItem("Tham khảo", fontAwesome.fontColor(Color.CORNFLOWERBLUE).create("COPY"));
+		MenuItem addItem = new MenuItem("Tạo mới", fontAwesome.fontColor(Color.GREEN).create("PLUS"));
 		editItem.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -122,7 +122,7 @@ public class CustomerScreenCtrl {
 								Long.class).setParameter("customerId", currentCustomer.getId()).getSingleResult();
 				if(custQuantity != null && custQuantity > 0) {
 					Dialogs.create().nativeTitleBar().title("Error")
-					.message("Customer are being used!")
+					.message("Khách hàng đang được sử dụng!")
 					.showError();
 					return;
 				}

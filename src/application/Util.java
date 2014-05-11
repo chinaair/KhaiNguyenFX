@@ -124,7 +124,11 @@ public class Util {
 			if (seq == 3) {
 				String subStr = sNumber.substring(i, i + seq);
 				if (k == 1) {
-					sR = moneyToText(subStr) + " đồng";
+					if(sNumber.length() > 3) {//tu hang nghin tro len
+						sR = " đồng";
+					} else {
+						sR = moneyToText(subStr) + " đồng";
+					}
 				} else if (k == 2) {
 					sR1 = moneyToText(subStr) + " nghìn ";
 				} else if (k == 3) {

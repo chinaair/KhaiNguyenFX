@@ -61,7 +61,7 @@ public class SearchScreenCtrl {
 		} else {
 			Dialogs.create().nativeTitleBar()
 		      .title("Error")
-		      .message( "Please correct the input data...")
+		      .message( "Hãy nhập thông tin đúng định dạng...")
 		      .showError();
 			return;
 		}

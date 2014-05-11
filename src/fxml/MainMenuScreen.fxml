@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
+<?import java.net.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-<children><Button fx:id="gotoProductBtn" layoutX="14.1875" layoutY="14.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="160.0" text="Sản phẩm" textAlignment="CENTER" AnchorPane.bottomAnchor="294.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="430.0" AnchorPane.topAnchor="10.0" /><Button fx:id="gotoQohBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="220.0" layoutY="10.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="160.0" text="Tồn kho" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="294.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" /><Button fx:id="gotoSaleBtn" layoutX="10.0" layoutY="152.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="160.0" text="Bán hàng" textAlignment="CENTER" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="430.0" AnchorPane.topAnchor="152.0" /><Button fx:id="gotoImportParcelBtn" layoutX="238.0" layoutY="14.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="160.0" text="Nhập hàng" textAlignment="CENTER" AnchorPane.bottomAnchor="294.0" AnchorPane.leftAnchor="430.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" /><Button fx:id="gotoCustomerBtn" layoutX="220.0" layoutY="294.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="160.0" text="Khách hàng" textAlignment="CENTER" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="294.0" /><Button fx:id="gotoSaleListBtn" layoutX="494.0" layoutY="152.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="160.0" text="Danh sách bán hàng" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="430.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="152.0" /><Button fx:id="summaryBtn" layoutX="14.0" layoutY="230.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="160.0" text="Tổng kết" textAlignment="CENTER" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="430.0" AnchorPane.topAnchor="294.0" /><Button fx:id="parcelListBtn" contentDisplay="CENTER" layoutX="220.0" layoutY="152.0" mnemonicParsing="false" prefHeight="96.0" prefWidth="160.0" text="Danh sách nhập hàng" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="152.0" />
+<stylesheets>
+	<URL value="@../css/default.css" />
+</stylesheets>
+<children><Button fx:id="gotoProductBtn" layoutX="14.1875" layoutY="14.0" mnemonicParsing="false" styleClass="menuButton,productButton" textAlignment="CENTER" AnchorPane.bottomAnchor="294.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="430.0" AnchorPane.topAnchor="10.0">
+<tooltip><Tooltip styleClass="menuButtonTooltip" text="产品" />
+</tooltip></Button><Button fx:id="gotoQohBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="220.0" layoutY="10.0" mnemonicParsing="false" styleClass="menuButton,inventoryButton" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="294.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<tooltip><Tooltip styleClass="menuButtonTooltip" text="库存" />
+</tooltip></Button><Button fx:id="gotoSaleBtn" layoutX="10.0" layoutY="152.0" mnemonicParsing="false" styleClass="menuButton,saleButton" textAlignment="CENTER" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="430.0" AnchorPane.topAnchor="152.0">
+<tooltip><Tooltip styleClass="menuButtonTooltip" text="出货" />
+</tooltip></Button><Button fx:id="gotoImportParcelBtn" layoutX="238.0" layoutY="14.0" mnemonicParsing="false" styleClass="menuButton,importButton" textAlignment="CENTER" AnchorPane.bottomAnchor="294.0" AnchorPane.leftAnchor="430.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+<tooltip><Tooltip styleClass="menuButtonTooltip" text="进货" />
+</tooltip></Button><Button fx:id="gotoCustomerBtn" layoutX="220.0" layoutY="294.0" mnemonicParsing="false" styleClass="menuButton,customerButton" textAlignment="CENTER" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="294.0">
+<tooltip><Tooltip styleClass="menuButtonTooltip" text="客户资料" />
+</tooltip></Button><Button fx:id="gotoSaleListBtn" layoutX="494.0" layoutY="152.0" mnemonicParsing="false" styleClass="menuButton,saleListButton" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="430.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="152.0">
+<tooltip><Tooltip styleClass="menuButtonTooltip" text="出货明细" />
+</tooltip></Button><Button fx:id="summaryBtn" layoutX="14.0" layoutY="230.0" mnemonicParsing="false" styleClass="menuButton,summaryButton" textAlignment="CENTER" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="430.0" AnchorPane.topAnchor="294.0">
+<tooltip><Tooltip styleClass="menuButtonTooltip" text="总结" />
+</tooltip></Button><Button fx:id="parcelListBtn" contentDisplay="CENTER" layoutX="220.0" layoutY="152.0" mnemonicParsing="false" styleClass="menuButton,importListButton" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="152.0">
+<tooltip><Tooltip styleClass="menuButtonTooltip" text="进货明细" />
+</tooltip></Button>
 </children></AnchorPane>

@@ -1,0 +1,82 @@
+.backButton {
+	-fx-background-image: url('../imgs/back.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 32 32;
+	-fx-pref-width:64;
+	-fx-pref-height:32;
+}
+
+.okButton {
+	-fx-background-image: url('../imgs/ok.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 32 32;
+	-fx-pref-width:64;
+	-fx-pref-height:32;
+}
+
+.menuButton {
+	-fx-pref-width:160;
+	-fx-pref-height:96;
+}
+
+.productButton {
+	-fx-background-image: url('../imgs/product.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 64 64;
+}
+
+.inventoryButton {
+	-fx-background-image: url('../imgs/inventory.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 64 64;
+}
+
+.importButton {
+	-fx-background-image: url('../imgs/import.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 64 64;
+}
+
+.saleButton {
+	-fx-background-image: url('../imgs/sale.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 64 64;
+}
+
+.importListButton {
+	-fx-background-image: url('../imgs/importList.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 64 64;
+}
+
+.saleListButton {
+	-fx-background-image: url('../imgs/saleList.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 64 64;
+}
+
+.summaryButton {
+	-fx-background-image: url('../imgs/sum.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 64 64;
+}
+
+.customerButton {
+	-fx-background-image: url('../imgs/customer.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: center;
+	-fx-background-size: 64 64;
+}
+
+.menuButtonTooltip {
+	-fx-font-size: 16px;
+}

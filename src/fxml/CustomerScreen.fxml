@@ -4,8 +4,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import java.net.*?>
 
 <AnchorPane maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<stylesheets>
+	<URL value="@../css/default.css" />
+</stylesheets>
 <children><Label layoutX="195.0" layoutY="14.0" text="Danh sách khách hàng" AnchorPane.topAnchor="10.0">
 <font>
 <Font name="System Bold" size="20.0" />
@@ -14,5 +18,5 @@
     <TableColumn fx:id="codeCol" text="Mã KH" />
     <TableColumn fx:id="nameCol" prefWidth="158.0" text="Tên KH" /><TableColumn fx:id="contactPersonCol" prefWidth="100.0" text="Người liên lạc" /><TableColumn fx:id="phoneCol" prefWidth="100.0" text="Điện thoại" /><TableColumn fx:id="addressCol" prefWidth="140.0" text="Địa chỉ" />
   </columns>
-</TableView><Button fx:id="backBtn" layoutX="534.1875" layoutY="355.0" mnemonicParsing="false" text="Quay về" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+</TableView><Button fx:id="backBtn" layoutX="534.1875" layoutY="355.0" mnemonicParsing="false" styleClass="backButton" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
 </children></AnchorPane>

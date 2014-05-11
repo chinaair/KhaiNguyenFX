@@ -3,6 +3,7 @@ package controllers;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
@@ -40,6 +41,9 @@ public class SummaryScreenCtrl {
 	private TextField totalSaleCostTxt;
 	
 	@FXML
+	private TextField totalCollectAmtTxt;
+	
+	@FXML
 	private TextField totalSaleDebtTxt;
 	
 	@FXML
@@ -52,6 +56,9 @@ public class SummaryScreenCtrl {
 	@FlowAction("gotoSearchSummary")
 	private Button backBtn;
 	
+	@FlowAction("gotoSaleList")
+	private Button gotoListSaleBtn = new Button();
+	
 	private EntityManager em;
 	
 	@PostConstruct
@@ -61,6 +68,7 @@ public class SummaryScreenCtrl {
 		totalCostTxt.setText("0");
 		totalSaleTxt.setText("0");
 		totalSaleCostTxt.setText("0");
+		totalCollectAmtTxt.setText("0");
 		totalSaleProfitTxt.setText("0");
 		totalSaleDebtTxt.setText("0");
 		em = (EntityManager)appCtx.getRegisteredObject("em");
@@ -84,6 +92,11 @@ public class SummaryScreenCtrl {
 		BigDecimal saleValue = em
 				.createQuery(
 						"select sum(s.saleAmount) from Sale s where s.saleDate between :fromDate and :toDate",
+						BigDecimal.class).setParameter("fromDate", fromDate)
+				.setParameter("toDate", toDate).getSingleResult();
+		BigDecimal collectValue = em
+				.createQuery(
+						"select sum(c.amount) from CollectMoney c where c.collectDate between :fromDate and :toDate",
 						BigDecimal.class).setParameter("fromDate", fromDate)
 				.setParameter("toDate", toDate).getSingleResult();
 		BigDecimal totalCost = em
@@ -113,6 +126,9 @@ public class SummaryScreenCtrl {
 		if(saleValue!=null) {
 			totalSaleTxt.setText(saleValue.toPlainString());
 		}
+		if(collectValue!=null) {
+			totalCollectAmtTxt.setText(collectValue.toPlainString());
+		}
 		if(totalCost!=null) {
 			totalSaleCostTxt.setText(totalCost.toPlainString());
 		}
@@ -122,6 +138,12 @@ public class SummaryScreenCtrl {
 		if(totalDebt!=null) {
 			totalSaleDebtTxt.setText(totalDebt.toPlainString());
 		}
+	}
+	
+	@FXML
+	public void gotoSaleListScreen(ActionEvent event) {
+		viewContext.register("fromSummary", "1");
+		gotoListSaleBtn.fire();
 	}
 
 }

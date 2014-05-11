@@ -25,6 +25,7 @@ import javafx.scene.layout.Priority;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.controlsfx.control.ButtonBar;
 import org.controlsfx.control.ButtonBar.ButtonType;
@@ -41,8 +42,9 @@ import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FlowAction;
 
 import components.SaleContextCellFactory;
-
 import entity.CollectMoney;
+import entity.Inventory;
+import entity.ParcelItem;
 import entity.Sale;
 import entity.SaleItem;
 
@@ -75,9 +77,14 @@ public class SaleListScreenCtrl {
 	@FlowAction("gotoEditSale")
 	private Button editSaleBtn = new Button();
 	
-	@FXML
 	@FlowAction("gotoMain")
-	private Button backBtn;
+	private Button backBtn = new Button();
+	
+	@FlowAction("gotoSummary")
+	private Button backSummayBtn = new Button();
+	
+	@FlowAction("gotoCollectHistory")
+	private Button collectHistoryBtn = new Button();
 	
 	@FXMLViewFlowContext
     private ViewFlowContext viewContext;
@@ -121,7 +128,7 @@ public class SaleListScreenCtrl {
     			} else {
     				Dialogs.create().nativeTitleBar()
     			      .title("Error")
-    			      .message( "Please correct the input data...")
+    			      .message( "Hãy nhập thông tin đúng định dạng...")
     			      .showError();
     				return;
     			}
@@ -134,7 +141,20 @@ public class SaleListScreenCtrl {
 	@PostConstruct
 	public void init() {
 		em = (EntityManager)appCtx.getRegisteredObject("em");
-		List<Sale> saleList = em.createQuery("select s from Sale s", Sale.class).getResultList();
+		Object fromSummary = viewContext.getRegisteredObject("fromSummary");
+		String selectSql = "select s from Sale s";
+		if("1".equals(fromSummary)) {
+			selectSql += " where s.saleDate between :fromDate and :toDate";
+		}
+		Query q = em.createQuery(selectSql, Sale.class);
+		if("1".equals(fromSummary)) {
+			Date fromDate = (Date)viewContext.getRegisteredObject("fromDate");
+			Date toDate = (Date)viewContext.getRegisteredObject("toDate");
+			q.setParameter("fromDate", fromDate);
+			q.setParameter("toDate", toDate);
+		}
+		@SuppressWarnings("unchecked")
+		List<Sale> saleList = q.getResultList();
 		ObservableList<Sale> sObservableList = FXCollections.observableArrayList(saleList);
 		SaleContextCellFactory saleStrCellFactory = new SaleContextCellFactory();
 		setActionForContextMenu(saleStrCellFactory);
@@ -149,6 +169,18 @@ public class SaleListScreenCtrl {
 		descriptionCol.setCellValueFactory(new PropertyValueFactory<Sale, String>("description"));
 		descriptionCol.setCellFactory(saleStrCellFactory);
 		saleTableView.setItems(sObservableList);
+	}
+	
+	@FXML
+	public void backToPrevious(ActionEvent event) {
+		Object fromSummary = viewContext.getRegisteredObject("fromSummary");
+		viewContext.register("saleId", null);
+		if("1".equals(fromSummary)) {
+			viewContext.register("fromSummary", null);
+			backSummayBtn.fire();
+		} else {
+			backBtn.fire();
+		}
 	}
 	
 	private void setActionForContextMenu(SaleContextCellFactory cellFactory) {
@@ -177,8 +209,22 @@ public class SaleListScreenCtrl {
 				Sale currentSale = saleTableView.getSelectionModel().getSelectedItem();
 				em.getTransaction().begin();
 				Sale removeObj = em.find(Sale.class, currentSale.getId());
+				Query q = em.createQuery("SELECT inv FROM Inventory inv WHERE inv.product.id = :productId", Inventory.class);
 				if(removeObj!=null) {
 					for(SaleItem item : removeObj.getSaleItems()) {
+						Long saleQuan = new Long(item.getQuantity());
+						ParcelItem pItem = item.getParcelItem();
+						pItem.setRemain(pItem.getRemain() + saleQuan);
+						em.merge(pItem);
+						@SuppressWarnings("unchecked")
+						List<Inventory> invs = q.setParameter("productId", item.getProduct().getId()).getResultList();
+						if(invs != null && invs.size() > 0) {
+							Inventory inv = invs.get(0);
+							inv.setQoh(inv.getQoh() + saleQuan);
+							BigDecimal saleAmt = pItem.getCost_vnd().multiply(new BigDecimal(saleQuan));
+							inv.setTotalValue(inv.getTotalValue().add(saleAmt));
+							em.merge(inv);
+						}
 						em.remove(item);
 					}
 					em.remove(removeObj);
@@ -194,19 +240,27 @@ public class SaleListScreenCtrl {
 				showInputInfoDialog();
 			}
 		});
+		cellFactory.setHistoryItemAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				selectedSale = saleTableView.getSelectionModel().getSelectedItem();
+				viewContext.register("saleId", selectedSale.getId());
+				collectHistoryBtn.fire();
+			}
+		});
 	}
 	
 	private Action showInputInfoDialog() {
-		Dialog dlg = new Dialog(null, "Input information");
+		Dialog dlg = new Dialog(null, "Nhập thông tin", false, true);
 		GridPane content = new GridPane();
 	     content.setHgap(10);
 	     content.setVgap(10);
-	     content.add(new Label("Ngay nhan tien"), 0, 0);
+	     content.add(new Label("Ngày nhận tiền"), 0, 0);
 	     receive_date_txt.setValue(LocalDate.now());
 	     amount_txt.setText("");
 	     content.add(receive_date_txt, 1, 0);
 	     GridPane.setHgrow(receive_date_txt, Priority.ALWAYS);
-	     content.add(new Label("So tien"), 0, 1);
+	     content.add(new Label("Số tiền"), 0, 1);
 	     content.add(amount_txt, 1, 1);
 	     GridPane.setHgrow(amount_txt, Priority.ALWAYS);
 	     

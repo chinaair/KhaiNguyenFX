@@ -2,7 +2,6 @@ package controllers;
 
 import java.util.Date;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -137,7 +136,7 @@ public class EditCustomerScreenCtrl {
 				|| nameTxt.getText().isEmpty()) {
 			Dialogs.create().nativeTitleBar()
 		      .title("Error")
-		      .message( "Please fill the information...")
+		      .message( "Hãy nhập thông tin cần thiết...")
 		      .showError();
 			return false;
 		}
