@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
+<?import java.net.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import java.net.*?>
 
 <AnchorPane maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 <stylesheets>
@@ -13,10 +13,10 @@
 <children><Label layoutX="195.0" layoutY="14.0" text="Danh sách khách hàng" AnchorPane.topAnchor="10.0">
 <font>
 <Font name="System Bold" size="20.0" />
-</font></Label><TableView fx:id="customerTableView" layoutX="14.0" layoutY="23.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0" xmlns:fx="http://javafx.com/fxml">
+</font></Label><TableView fx:id="customerTableView" layoutX="14.0" layoutY="23.0" prefHeight="280.0" prefWidth="580.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="80.0" xmlns:fx="http://javafx.com/fxml">
   <columns>
     <TableColumn fx:id="codeCol" text="Mã KH" />
     <TableColumn fx:id="nameCol" prefWidth="158.0" text="Tên KH" /><TableColumn fx:id="contactPersonCol" prefWidth="100.0" text="Người liên lạc" /><TableColumn fx:id="phoneCol" prefWidth="100.0" text="Điện thoại" /><TableColumn fx:id="addressCol" prefWidth="140.0" text="Địa chỉ" />
   </columns>
-</TableView><Button fx:id="backBtn" layoutX="534.1875" layoutY="355.0" mnemonicParsing="false" styleClass="backButton" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+</TableView><Button fx:id="backBtn" layoutX="534.1875" layoutY="355.0" mnemonicParsing="false" styleClass="backButton" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" /><Label layoutX="14.0" layoutY="54.0" text="Tìm:" AnchorPane.leftAnchor="10.0" /><TextField fx:id="searchBox" layoutX="58.0" layoutY="44.5" prefHeight="25.0" prefWidth="530.0" promptText="Nhập chuỗi cần tìm" AnchorPane.topAnchor="50.0" />
 </children></AnchorPane>

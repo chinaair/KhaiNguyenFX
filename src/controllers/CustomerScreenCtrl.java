@@ -1,9 +1,13 @@
 package controllers;
 
 import java.util.List;
+import java.util.function.Predicate;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -12,6 +16,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 
@@ -30,13 +35,18 @@ import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FlowAction;
 
 import components.ContextCellFactory;
+
 import entity.Customer;
+import entity.Product;
 
 @FXMLController("/fxml/CustomerScreen.fxml")
 public class CustomerScreenCtrl {
 	
 	@FXMLApplicationContext
 	private ApplicationContext appCtx;
+	
+	@FXML
+	private TextField searchBox;
 	
 	@FXML
 	private TableView<Customer> customerTableView;
@@ -70,6 +80,10 @@ public class CustomerScreenCtrl {
 	@FXMLViewFlowContext
     private ViewFlowContext viewContext;
 	
+	private FilteredList<Customer> filteredData;
+	
+	private String searchBoxInputValue;
+	
 	@PostConstruct
 	public void init() {
 		em = (EntityManager)appCtx.getRegisteredObject("em");
@@ -95,7 +109,40 @@ public class CustomerScreenCtrl {
 		phoneCol.setCellFactory(customerStrCellFactory);
 		addressCol.setCellValueFactory(new PropertyValueFactory<Customer, String>("address"));
 		addressCol.setCellFactory(customerStrCellFactory);
-		customerTableView.setItems(cObservableList);
+		filteredData = new FilteredList<>(cObservableList, new Predicate<Customer>() {
+			@Override
+			public boolean test(Customer c) {
+				return true;
+			}
+		});
+		customerTableView.setItems(filteredData);
+		setListenerForSearchbox();
+	}
+	
+	private void setListenerForSearchbox() {
+		searchBox.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				searchBoxInputValue = newValue;
+				filteredData.setPredicate(new Predicate<Customer>() {
+					@Override
+					public boolean test(Customer c) {
+						if(searchBoxInputValue == null || searchBoxInputValue.isEmpty()) {
+							return true;
+						}
+						
+						String lowerinputValue = searchBoxInputValue.toLowerCase();
+						if(c.getName().toLowerCase().indexOf(lowerinputValue) != -1
+								|| c.getCode().toLowerCase().indexOf(lowerinputValue) != -1) {
+							return true;
+						}
+						return false;
+					}
+				});
+				
+			}
+		});
 	}
 	
 	private ContextMenu createContextMenu() {

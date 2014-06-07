@@ -8,12 +8,14 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.function.Predicate;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -81,6 +83,9 @@ public class ImportParcelScreenCtrl {
 	private TextArea parcel_des_txt;
 	
 	@FXML
+	private TextField searchBox;
+	
+	@FXML
 	private Button selectProductBtn;
 	
 	@FXML
@@ -100,11 +105,18 @@ public class ImportParcelScreenCtrl {
 	private String mode;
 	
 	private final TextField quantity_txt = new TextField();
+	
 	private final TextField cost_vnd_txt = new TextField();
+	
 	private final TextField cost_rmb_txt = new TextField();
+	
 	private final Label total_vnd_cost = new Label();
 	
 	private BigDecimal rate;
+	
+	private FilteredList<Product> filteredData;
+	
+	private String searchBoxInputValue;
 	
 	private final DialogAction actionInputInfo = new AbstractDialogAction("Ok") {
 		{
@@ -173,24 +185,15 @@ public class ImportParcelScreenCtrl {
 				.getResultList();
 		ObservableList<Product> pObservableList =
 				FXCollections.observableArrayList(productList);
-		productLst.setItems(pObservableList);
-		productLst.setCellFactory(new Callback<ListView<Product>, ListCell<Product>>() {
-			
+		filteredData = new FilteredList<>(pObservableList, new Predicate<Product>() {
 			@Override
-			public ListCell<Product> call(ListView<Product> param) {
-				ListCell<Product> cell = new ListCell<Product>(){
-					@Override
-					protected void updateItem(Product t, boolean bln) {
-						super.updateItem(t, bln);
-						if(t != null) {
-							setText(t.getName()+ " (" + t.getCode() + ")");
-						}
-					}
-				};
-				return cell;
+			public boolean test(Product t) {
+				return true;
 			}
 		});
-		
+		productLst.setItems(filteredData);
+		setListenerForSearchbox();
+		resetProductListCellFactory();
 		resetParcelItemCellFactory();
 		
 		if(("1".equals(mode) || "2".equals(mode)) && editingParcel != null) {//update or view
@@ -216,6 +219,33 @@ public class ImportParcelScreenCtrl {
 			parcel_code_txt.setText(parcelCode);
 			import_date_txt.setValue(LocalDate.now());
 		}
+	}
+	
+	private void setListenerForSearchbox() {
+		searchBox.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				searchBoxInputValue = newValue;
+				filteredData.setPredicate(new Predicate<Product>() {
+					@Override
+					public boolean test(Product p) {
+						if(searchBoxInputValue == null || searchBoxInputValue.isEmpty()) {
+							return true;
+						}
+						
+						String lowerinputValue = searchBoxInputValue.toLowerCase();
+						if(p.getCode().toLowerCase().indexOf(lowerinputValue) != -1
+								|| p.getName().toLowerCase().indexOf(lowerinputValue) != -1) {
+							resetProductListCellFactory();
+							return true;
+						}
+						return false;
+					}
+				});
+				
+			}
+		});
 	}
 	
 	@PreDestroy
@@ -435,6 +465,24 @@ public class ImportParcelScreenCtrl {
 			@Override
 			public ListCell<ParcelItem> call(ListView<ParcelItem> param) {
 				return new parcelCell();
+			}
+		});
+	}
+	
+	private void resetProductListCellFactory() {
+		productLst.setCellFactory(new Callback<ListView<Product>, ListCell<Product>>() {
+			@Override
+			public ListCell<Product> call(ListView<Product> param) {
+				ListCell<Product> cell = new ListCell<Product>(){
+					@Override
+					protected void updateItem(Product t, boolean bln) {
+						super.updateItem(t, bln);
+						if(t != null) {
+							setText(t.getName()+ " (" + t.getCode() + ")");
+						}
+					}
+				};
+				return cell;
 			}
 		});
 	}

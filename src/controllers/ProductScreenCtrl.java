@@ -1,9 +1,13 @@
 package controllers;
 
 import java.util.List;
+import java.util.function.Predicate;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -12,6 +16,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 
@@ -40,6 +45,9 @@ public class ProductScreenCtrl {
 	private ApplicationContext appCtx;
 	
 	@FXML
+	private TextField searchBox;
+	
+	@FXML
 	private TableView<Product> productTableView;
 	
 	@FXML
@@ -65,6 +73,10 @@ public class ProductScreenCtrl {
 	@FXMLViewFlowContext
     private ViewFlowContext viewContext;
 	
+	private FilteredList<Product> filteredData;
+	
+	private String searchBoxInputValue;
+	
 	@PostConstruct
 	public void init() {
 		em = (EntityManager)appCtx.getRegisteredObject("em");
@@ -88,8 +100,42 @@ public class ProductScreenCtrl {
 		nameCol.setCellFactory(productStrCellFactory);
 		descriptionCol.setCellValueFactory(new PropertyValueFactory<Product, String>("description"));
 		descriptionCol.setCellFactory(productStrCellFactory);
-		productTableView.setItems(pObservableList);
 		//productTableView.getSelectionModel().selectedItemProperty().addListener(listener);
+		filteredData = new FilteredList<>(pObservableList, new Predicate<Product>() {
+			@Override
+			public boolean test(Product t) {
+				return true;
+			}
+		});
+		productTableView.setItems(filteredData);
+		setListenerForSearchbox();
+	}
+	
+	private void setListenerForSearchbox() {
+		searchBox.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				searchBoxInputValue = newValue;
+				filteredData.setPredicate(new Predicate<Product>() {
+					@Override
+					public boolean test(Product p) {
+						if(searchBoxInputValue == null || searchBoxInputValue.isEmpty()) {
+							return true;
+						}
+						
+						String lowerinputValue = searchBoxInputValue.toLowerCase();
+						if(p.getCode().toLowerCase().indexOf(lowerinputValue) != -1
+								|| p.getName().toLowerCase().indexOf(lowerinputValue) != -1
+								|| p.getDescription().toLowerCase().indexOf(lowerinputValue) != -1) {
+							return true;
+						}
+						return false;
+					}
+				});
+				
+			}
+		});
 	}
 	
 	public void beforeOpenContextMenu(ActionEvent event) {

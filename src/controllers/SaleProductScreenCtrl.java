@@ -17,10 +17,14 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -82,6 +86,8 @@ public class SaleProductScreenCtrl {
 	
 	private ListView<Customer> selectCustList;
 	
+	private TextField custSearchBox;
+	
 	private Customer selectedCustomer;
 	
 	@FXML
@@ -92,6 +98,9 @@ public class SaleProductScreenCtrl {
 	
 	@FXML
 	private TextField selectedCustTxt;
+	
+	@FXML
+	private TextField searchBox;
 	
 	@FXML
 	private ListView<Inventory> inventoryList;
@@ -137,6 +146,14 @@ public class SaleProductScreenCtrl {
 	private Sale editingSale;
 	
 	private String mode;
+	
+	private FilteredList<Inventory> inventoryfilteredData;
+	
+	private FilteredList<Customer> custfilteredData;
+	
+	private String searchBoxInputValue;
+	
+	private String searchCustomerValue;
 	
 	private final DialogAction okSelectCustomer = new AbstractDialogAction("Ok") {
 		{
@@ -225,27 +242,17 @@ public class SaleProductScreenCtrl {
 		editingSale = (Sale)viewContext.getRegisteredObject("editingSale");
 		em = (EntityManager)appCtx.getRegisteredObject("em");
 		em.clear();
-		List<Customer> custList = em.createQuery("select cust from Customer cust", Customer.class).getResultList();
 		List<Inventory> iList = em.createQuery("select i from Inventory i", Inventory.class).getResultList();
-		obserCustList = FXCollections.observableArrayList(custList);
 		ObservableList<Inventory> obserProductList = FXCollections.observableArrayList(iList);
-		inventoryList.setItems(obserProductList);
-		inventoryList.setCellFactory(new Callback<ListView<Inventory>, ListCell<Inventory>>() {
-			
+		inventoryfilteredData = new FilteredList<>(obserProductList, new Predicate<Inventory>() {
 			@Override
-			public ListCell<Inventory> call(ListView<Inventory> param) {
-				ListCell<Inventory> cell = new ListCell<Inventory>(){
-					@Override
-					protected void updateItem(Inventory i, boolean bln) {
-						super.updateItem(i, bln);
-						if(i != null) {
-							setText(i.getProductName()+ " (" + i.getQoh() + ")");
-						}
-					}
-				};
-				return cell;
+			public boolean test(Inventory i) {
+				return true;
 			}
 		});
+		inventoryList.setItems(inventoryfilteredData);
+		setListenerForSearchbox();
+		resetInventoryListCellFactory();
 		resetSaleItemCellFactory();
 		
 		if(("1".equals(mode) || "2".equals(mode)) && editingSale!=null) {
@@ -270,12 +277,40 @@ public class SaleProductScreenCtrl {
 			editingSale = new Sale();
 			saleDate.setValue(LocalDate.now());
 		}
-		
-		
+	}
+	
+	private void setListenerForSearchbox() {
+		searchBox.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				searchBoxInputValue = newValue;
+				inventoryfilteredData.setPredicate(new Predicate<Inventory>() {
+					@Override
+					public boolean test(Inventory i) {
+						if(searchBoxInputValue == null || searchBoxInputValue.isEmpty()) {
+							return true;
+						}
+						
+						String lowerinputValue = searchBoxInputValue.toLowerCase();
+						if(i.getProductName().toLowerCase().indexOf(lowerinputValue) != -1
+								|| i.getProductCode().toLowerCase().indexOf(lowerinputValue) != -1) {
+							resetInventoryListCellFactory();
+							return true;
+						}
+						return false;
+					}
+				});
+				
+			}
+		});
 	}
 	
 	@FXML
 	public void openCustPopup(ActionEvent event) {
+		List<Customer> custList = em.createQuery("select cust from Customer cust", Customer.class).getResultList();
+		custSearchBox = new TextField();
+		obserCustList = FXCollections.observableArrayList(custList);
 		Dialog dlg = new Dialog(null, "Chọn khách hàng", false, true);
 		GridPane content = new GridPane();
 		ColumnConstraints col = new ColumnConstraints();
@@ -284,7 +319,53 @@ public class SaleProductScreenCtrl {
 		content.setHgap(10);
 		content.setVgap(10);
 		content.setPrefHeight(200);
-		selectCustList = new ListView<Customer>(obserCustList);
+		custSearchBox.setPromptText("Nhập chuỗi cần tìm");
+		setSearchCustomerTextboxListener();
+		content.add(custSearchBox, 0, 0);
+		custfilteredData = new FilteredList<>(obserCustList, new Predicate<Customer>() {
+			@Override
+			public boolean test(Customer c) {
+				return true;
+			}
+		});
+		selectCustList = new ListView<Customer>(custfilteredData);
+		resetCustomerListCellFactory();
+		content.add(selectCustList, 0, 1);
+		dlg.setResizable(false);
+		dlg.setIconifiable(false);
+		dlg.setContent(content);
+		dlg.getActions().addAll(okSelectCustomer, Dialog.Actions.CANCEL);
+		dlg.show();
+	}
+	
+	private void setSearchCustomerTextboxListener() {
+		custSearchBox.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				searchCustomerValue = newValue;
+				custfilteredData.setPredicate(new Predicate<Customer>() {
+					@Override
+					public boolean test(Customer c) {
+						if(searchCustomerValue == null || searchCustomerValue.isEmpty()) {
+							return true;
+						}
+						
+						String lowerinputValue = searchCustomerValue.toLowerCase();
+						if(c.getName().toLowerCase().indexOf(lowerinputValue) != -1
+								|| c.getCode().toLowerCase().indexOf(lowerinputValue) != -1) {
+							resetCustomerListCellFactory();
+							return true;
+						}
+						return false;
+					}
+				});
+				
+			}
+		});
+	}
+	
+	private void resetCustomerListCellFactory() {
 		selectCustList.setCellFactory(new Callback<ListView<Customer>, ListCell<Customer>>() {
 			@Override
 			public ListCell<Customer> call(ListView<Customer> param) {
@@ -293,19 +374,13 @@ public class SaleProductScreenCtrl {
 					protected void updateItem(Customer c, boolean bln) {
 						super.updateItem(c, bln);
 						if(c != null) {
-							setText(c.getName());
+							setText("[" + c.getCode() + "]" + c.getName());
 						}
 					}
 				};
 				return cell;
 			}
 		});
-		content.add(selectCustList, 0, 0);
-		dlg.setResizable(false);
-		dlg.setIconifiable(false);
-		dlg.setContent(content);
-		dlg.getActions().addAll(okSelectCustomer, Dialog.Actions.CANCEL);
-		dlg.show();
 	}
 	
 	@FXML
@@ -615,6 +690,24 @@ public class SaleProductScreenCtrl {
 						return new SaleItemCell();
 					}
 				});
+	}
+	
+	private void resetInventoryListCellFactory() {
+		inventoryList.setCellFactory(new Callback<ListView<Inventory>, ListCell<Inventory>>() {
+			@Override
+			public ListCell<Inventory> call(ListView<Inventory> param) {
+				ListCell<Inventory> cell = new ListCell<Inventory>(){
+					@Override
+					protected void updateItem(Inventory i, boolean bln) {
+						super.updateItem(i, bln);
+						if(i != null) {
+							setText("[" + i.getProductCode() + "]" + i.getProductName()+ " (" + i.getQoh() + ")");
+						}
+					}
+				};
+				return cell;
+			}
+		});
 	}
 	
 	static class SaleItemCell extends ListCell<SaleItem> {
