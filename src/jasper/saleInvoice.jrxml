@@ -42,11 +42,11 @@
 				<text><![CDATA[Điện thoại: 0903 131 708]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="0" y="63" width="555" height="20" uuid="c82afb15-4e65-4800-98c8-3695ed091db3"/>
+				<reportElement x="43" y="63" width="512" height="20" uuid="c82afb15-4e65-4800-98c8-3695ed091db3"/>
 				<textElement verticalAlignment="Middle" markup="none">
-					<font fontName="DejaVu Sans" size="11" isBold="false"/>
+					<font fontName="DejaVu Sans" size="11" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Tên khách hàng: " + $P{CUSTNAME}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{CUSTNAME}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="83" width="555" height="20" uuid="3d544cbc-27d6-47b2-a824-027e5677bcf1"/>
@@ -70,6 +70,13 @@
 					<font fontName="DejaVu Sans" size="9" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Sạp B-24, 40 Kim Biên, Q5 (Chợ Kim Biên)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="63" width="43" height="20" uuid="faa56233-76ce-4c46-a058-784902ad6d82"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="DejaVu Sans"/>
+				</textElement>
+				<text><![CDATA[Tên KH:]]></text>
 			</staticText>
 		</band>
 	</title>

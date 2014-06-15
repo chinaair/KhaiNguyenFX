@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 
+import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.context.ApplicationContext;
@@ -59,7 +60,7 @@ public class SearchScreenCtrl {
 			viewContext.register("toDate", currentToDate);
 			gotoSummaryScreen.fire();
 		} else {
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 		      .title("Error")
 		      .message( "Hãy nhập thông tin đúng định dạng...")
 		      .showError();

@@ -90,4 +90,11 @@ public class Inventory {
 		return null;
 	}
 	
+	public String getProductType() {
+		if(product!=null) {
+			return product.getType();
+		}
+		return null;
+	}
+	
 }

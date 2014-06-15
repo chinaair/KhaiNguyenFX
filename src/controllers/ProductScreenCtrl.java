@@ -8,6 +8,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -24,6 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
 
+import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
@@ -55,6 +57,9 @@ public class ProductScreenCtrl {
 	
 	@FXML
 	private TableColumn<Product, String> nameCol;
+	
+	@FXML
+	private TableColumn<Product, String> typeCol;
 	
 	@FXML
 	private TableColumn<Product, String> descriptionCol;
@@ -98,16 +103,25 @@ public class ProductScreenCtrl {
 		codeCol.setCellFactory(productStrCellFactory);
 		nameCol.setCellValueFactory(new PropertyValueFactory<Product, String>("name"));
 		nameCol.setCellFactory(productStrCellFactory);
+		typeCol.setCellValueFactory(new PropertyValueFactory<Product, String>("type"));
+		typeCol.setCellFactory(productStrCellFactory);
 		descriptionCol.setCellValueFactory(new PropertyValueFactory<Product, String>("description"));
 		descriptionCol.setCellFactory(productStrCellFactory);
 		//productTableView.getSelectionModel().selectedItemProperty().addListener(listener);
+		// 1. Wrap the ObservableList in a FilteredList (initially display all data).
 		filteredData = new FilteredList<>(pObservableList, new Predicate<Product>() {
 			@Override
 			public boolean test(Product t) {
 				return true;
 			}
 		});
-		productTableView.setItems(filteredData);
+		// 3. Wrap the FilteredList in a SortedList.
+		SortedList<Product> sortedData = new SortedList<>(filteredData);
+		// 4. Bind the SortedList comparator to the TableView comparator.
+		sortedData.comparatorProperty().bind(productTableView.comparatorProperty());
+		// 5. Add sorted (and filtered) data to the table.
+		productTableView.setItems(sortedData);
+		// 2. Set the filter Predicate whenever the filter changes.
 		setListenerForSearchbox();
 	}
 	
@@ -127,6 +141,7 @@ public class ProductScreenCtrl {
 						String lowerinputValue = searchBoxInputValue.toLowerCase();
 						if(p.getCode().toLowerCase().indexOf(lowerinputValue) != -1
 								|| p.getName().toLowerCase().indexOf(lowerinputValue) != -1
+								|| p.getType().toLowerCase().indexOf(lowerinputValue) != -1
 								|| p.getDescription().toLowerCase().indexOf(lowerinputValue) != -1) {
 							return true;
 						}
@@ -170,7 +185,7 @@ public class ProductScreenCtrl {
 								Long.class).setParameter("productId", currentProduct.getId()).getSingleResult();
 				if((importQuantity != null && importQuantity > 0)
 						|| (saleQuantity != null && saleQuantity > 0)) {
-					Dialogs.create().nativeTitleBar().title("Error")
+					Dialogs.create().style(DialogStyle.NATIVE).title("Error")
 					.message("Product are being used!")
 					.showError();
 					return;

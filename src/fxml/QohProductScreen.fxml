@@ -15,8 +15,8 @@
 <Font name="System Bold" size="20.0" />
 </font></Label><TableView fx:id="inventoryTableView" layoutX="12.0" layoutY="28.0" prefHeight="280.0" prefWidth="580.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="80.0" xmlns:fx="http://javafx.com/fxml">
   <columns>
-    <TableColumn fx:id="productCodeColumn" prefWidth="108.0" text="Mã sản phẩm" />
-    <TableColumn fx:id="productNameColumn" prefWidth="250.0" text="Tên sản phẩm" /><TableColumn fx:id="qohColumn" prefWidth="100.0" text="Tồn kho" /><TableColumn fx:id="totalColumn" prefWidth="120.0" text="Tổng trị giá" />
+    <TableColumn fx:id="productCodeColumn" prefWidth="90.0" text="Mã sản phẩm" /><TableColumn fx:id="typeCol" prefWidth="74.0" text="Loại" />
+    <TableColumn fx:id="productNameColumn" prefWidth="223.0" text="Tên sản phẩm" /><TableColumn fx:id="qohColumn" prefWidth="78.0" text="Tồn kho" /><TableColumn fx:id="totalColumn" prefWidth="114.0" text="Tổng trị giá" />
   </columns>
 </TableView><CheckBox fx:id="displayOutOfStock" layoutX="12.2890625" layoutY="272.0" maxHeight="17.0" minHeight="17.0" mnemonicParsing="false" prefHeight="17.0" text="Hiền thị cả sản phẩm đã bán hết" AnchorPane.bottomAnchor="18.0" AnchorPane.leftAnchor="10.0" /><Button fx:id="backBtn" layoutX="521.1875" layoutY="360.5" mnemonicParsing="false" styleClass="backButton" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" /><Label layoutX="14.0" layoutY="54.0" text="Tìm:" AnchorPane.bottomAnchor="329.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="567.0" AnchorPane.topAnchor="54.0" /><TextField fx:id="searchBox" layoutX="40.0" layoutY="62.5" prefHeight="25.0" prefWidth="550.0" promptText="Nhập chuỗi cần tìm" AnchorPane.bottomAnchor="325.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="50.0" />
 </children></AnchorPane>

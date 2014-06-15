@@ -36,9 +36,10 @@ import javax.persistence.EntityManager;
 import org.controlsfx.control.ButtonBar;
 import org.controlsfx.control.ButtonBar.ButtonType;
 import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.AbstractDialogAction;
+import org.controlsfx.dialog.DefaultDialogAction;
 import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialog.DialogAction;
+import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.context.ApplicationContext;
@@ -118,13 +119,13 @@ public class ImportParcelScreenCtrl {
 	
 	private String searchBoxInputValue;
 	
-	private final DialogAction actionInputInfo = new AbstractDialogAction("Ok") {
+	private final DialogAction actionInputInfo = new DefaultDialogAction("Ok") {
 		{
 			ButtonBar.setType(this, ButtonType.OK_DONE);
 		}
 		
 		@Override
-		public void execute(ActionEvent ae) {
+		public void handle(ActionEvent ae) {
 			if (! this.isDisabled() && ae.getSource() instanceof Dialog) {
             	Dialog dlg = (Dialog) ae.getSource();
             	if(isValidData()) {
@@ -151,7 +152,7 @@ public class ImportParcelScreenCtrl {
     				dlg.hide();
     				resetParcelItemCellFactory();
     			} else {
-    				Dialogs.create().nativeTitleBar()
+    				Dialogs.create().style(DialogStyle.NATIVE)
     			      .title("Error")
     			      .message( "Hãy nhập thông tin đúng định dạng...")
     			      .showError();
@@ -181,7 +182,7 @@ public class ImportParcelScreenCtrl {
 		em = (EntityManager)appCtx.getRegisteredObject("em");
 		em.clear();
 		List<Product> productList =
-				em.createQuery("select p from Product p", Product.class)
+				em.createQuery("select p from Product p order by p.type, p.name", Product.class)
 				.getResultList();
 		ObservableList<Product> pObservableList =
 				FXCollections.observableArrayList(productList);
@@ -236,7 +237,8 @@ public class ImportParcelScreenCtrl {
 						
 						String lowerinputValue = searchBoxInputValue.toLowerCase();
 						if(p.getCode().toLowerCase().indexOf(lowerinputValue) != -1
-								|| p.getName().toLowerCase().indexOf(lowerinputValue) != -1) {
+								|| p.getName().toLowerCase().indexOf(lowerinputValue) != -1
+								|| p.getType().toLowerCase().indexOf(lowerinputValue) != -1) {
 							resetProductListCellFactory();
 							return true;
 						}
@@ -258,7 +260,7 @@ public class ImportParcelScreenCtrl {
 		Product selectProduct = productLst.getSelectionModel().getSelectedItem();
 		if(selectProduct==null || !isNumber(parcel_rate_txt.getText())) {
 			//Please select a product to process and enter valid rate
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 				      .title("Error")
 				      .message( "Hãy chọn 1 sản phẩm và nhập tỷ giá đúng...")
 				      .showError();
@@ -273,7 +275,7 @@ public class ImportParcelScreenCtrl {
 		ParcelItem selectItem = parcelItemLst.getSelectionModel().getSelectedItem();
 		if(selectItem==null) {
 			//Plaese select an item to process
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 		      .title("Error")
 		      .message( "Hãy chọn 1 chi tiết...")
 		      .showError();
@@ -289,7 +291,7 @@ public class ImportParcelScreenCtrl {
 				|| import_date_txt.getValue()==null
 				|| !isNumber(parcel_rate_txt.getText())) {
 			//Please input correct data
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 		      .title("Error")
 		      .message( "Hãy nhập thông tin đúng định dạng...")
 		      .showError();
@@ -298,7 +300,7 @@ public class ImportParcelScreenCtrl {
 		Long dupCount = em.createQuery("SELECT COUNT(i) FROM ImportParcel i WHERE i.code = :code", Long.class).setParameter("code", parcel_code_txt.getText()).getSingleResult();
 		if(dupCount != null && dupCount.intValue() > 0) {
 			//The parcel code is duplicated
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 		      .title("Error")
 		      .message( "Mã số lô đã bị trùng...")
 		      .showError();
@@ -381,7 +383,7 @@ public class ImportParcelScreenCtrl {
 	}
 	
 	private Action showInputInfoDialog() {
-		Dialog dlg = new Dialog(null, "Nhập thông tin", false, true);
+		Dialog dlg = new Dialog(null, "Nhập thông tin", false, DialogStyle.NATIVE);
 		GridPane content = new GridPane();
 	     content.setHgap(10);
 	     content.setVgap(10);
@@ -478,7 +480,7 @@ public class ImportParcelScreenCtrl {
 					protected void updateItem(Product t, boolean bln) {
 						super.updateItem(t, bln);
 						if(t != null) {
-							setText(t.getName()+ " (" + t.getCode() + ")");
+							setText("[" + t.getCode() + "] " + t.getName());
 						}
 					}
 				};

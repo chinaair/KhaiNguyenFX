@@ -54,9 +54,10 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 import org.controlsfx.control.ButtonBar;
 import org.controlsfx.control.ButtonBar.ButtonType;
-import org.controlsfx.dialog.AbstractDialogAction;
+import org.controlsfx.dialog.DefaultDialogAction;
 import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialog.DialogAction;
+import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.context.ApplicationContext;
@@ -155,13 +156,13 @@ public class SaleProductScreenCtrl {
 	
 	private String searchCustomerValue;
 	
-	private final DialogAction okSelectCustomer = new AbstractDialogAction("Ok") {
+	private final DialogAction okSelectCustomer = new DefaultDialogAction("Ok") {
 		{
 			ButtonBar.setType(this, ButtonType.OK_DONE);
 		}
 
 		@Override
-		public void execute(ActionEvent ae) {
+		public void handle(ActionEvent ae) {
 			if (! this.isDisabled() && ae.getSource() instanceof Dialog) {
 				Dialog dlg = (Dialog) ae.getSource();
 				selectedCustomer = selectCustList.getSelectionModel().getSelectedItem();
@@ -176,13 +177,13 @@ public class SaleProductScreenCtrl {
 		
 	};
 	
-	private final DialogAction okSelectQuantity = new AbstractDialogAction("Ok") {
+	private final DialogAction okSelectQuantity = new DefaultDialogAction("Ok") {
 		{
 			ButtonBar.setType(this, ButtonType.OK_DONE);
 		}
 
 		@Override
-		public void execute(ActionEvent ae) {
+		public void handle(ActionEvent ae) {
 			if (! this.isDisabled() && ae.getSource() instanceof Dialog) {
             	Dialog dlg = (Dialog) ae.getSource();
             	if(isValidData()) {
@@ -191,7 +192,7 @@ public class SaleProductScreenCtrl {
             		Product invProduct = selectedInventory.getProduct();
             		int quantity = Integer.parseInt(quantity_txt.getText());
             		if(quantity > itemsFromSaleCB.getSelectionModel().getSelectedItem().getRemain().intValue()) {
-						Dialogs.create().nativeTitleBar().title("Error")
+						Dialogs.create().style(DialogStyle.NATIVE).title("Error")
 								.message("Số lượng bán không được lớn hơn số lượng tồn kho...")
 								.showError();
 						return;
@@ -224,7 +225,7 @@ public class SaleProductScreenCtrl {
     				dlg.hide();
     				resetSaleItemCellFactory();
     			} else {
-    				Dialogs.create().nativeTitleBar()
+    				Dialogs.create().style(DialogStyle.NATIVE)
     			      .title("Error")
     			      .message( "hãy nhập thông tin đúng định dạng...")
     			      .showError();
@@ -242,7 +243,7 @@ public class SaleProductScreenCtrl {
 		editingSale = (Sale)viewContext.getRegisteredObject("editingSale");
 		em = (EntityManager)appCtx.getRegisteredObject("em");
 		em.clear();
-		List<Inventory> iList = em.createQuery("select i from Inventory i", Inventory.class).getResultList();
+		List<Inventory> iList = em.createQuery("select i from Inventory i order by i.product.type, i.product.name", Inventory.class).getResultList();
 		ObservableList<Inventory> obserProductList = FXCollections.observableArrayList(iList);
 		inventoryfilteredData = new FilteredList<>(obserProductList, new Predicate<Inventory>() {
 			@Override
@@ -294,7 +295,8 @@ public class SaleProductScreenCtrl {
 						
 						String lowerinputValue = searchBoxInputValue.toLowerCase();
 						if(i.getProductName().toLowerCase().indexOf(lowerinputValue) != -1
-								|| i.getProductCode().toLowerCase().indexOf(lowerinputValue) != -1) {
+								|| i.getProductCode().toLowerCase().indexOf(lowerinputValue) != -1
+								|| i.getProductType().toLowerCase().indexOf(lowerinputValue) != -1) {
 							resetInventoryListCellFactory();
 							return true;
 						}
@@ -311,7 +313,7 @@ public class SaleProductScreenCtrl {
 		List<Customer> custList = em.createQuery("select cust from Customer cust", Customer.class).getResultList();
 		custSearchBox = new TextField();
 		obserCustList = FXCollections.observableArrayList(custList);
-		Dialog dlg = new Dialog(null, "Chọn khách hàng", false, true);
+		Dialog dlg = new Dialog(null, "Chọn khách hàng", false, DialogStyle.NATIVE);
 		GridPane content = new GridPane();
 		ColumnConstraints col = new ColumnConstraints();
 		col.setPercentWidth(100);
@@ -386,14 +388,14 @@ public class SaleProductScreenCtrl {
 	@FXML
 	public void registerSale(ActionEvent event) {
 		if(saleItemList.getItems().isEmpty()) {
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 		      .title("Error")
 		      .message( "Hãy chọn 1 sản phẩm...")
 		      .showError();
 			return;
 		}
 		if(currentSelectedCust==null) {
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 		      .title("Error")
 		      .message( "Hãy chọn khách hàng...")
 		      .showError();
@@ -460,7 +462,7 @@ public class SaleProductScreenCtrl {
 	public void selectProduct(ActionEvent event) {
 		Inventory selectedInventory = inventoryList.getSelectionModel().getSelectedItem();
 		if(selectedInventory == null) {
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 		      .title("Error")
 		      .message( "Hãy chọn 1 sản phẩm...")
 		      .showError();
@@ -509,7 +511,7 @@ public class SaleProductScreenCtrl {
 			}
 		});
 		itemsFromSaleCB.getSelectionModel().select(0);
-		Dialog dlg = new Dialog(null, "Nhập thông tin", false, true);
+		Dialog dlg = new Dialog(null, "Nhập thông tin", false, DialogStyle.NATIVE);
 		GridPane content = new GridPane();
 		content.setHgap(10);
 		content.setVgap(10);
@@ -545,7 +547,7 @@ public class SaleProductScreenCtrl {
 	public void removeProduct(ActionEvent event) {
 		SaleItem selectedSaleItem = saleItemList.getSelectionModel().getSelectedItem();
 		if(selectedSaleItem==null) {
-			Dialogs.create().nativeTitleBar().title("Error")
+			Dialogs.create().style(DialogStyle.NATIVE).title("Error")
 					.message("Please select item to remove...").showError();
 			return;
 		}
@@ -660,24 +662,24 @@ public class SaleProductScreenCtrl {
 				if(Desktop.isDesktopSupported()) {
 					Desktop.getDesktop().open(pdfFile);
 				} else {
-					Dialogs.create().nativeTitleBar().title("Error")
+					Dialogs.create().style(DialogStyle.NATIVE).title("Error")
 							.message("Application library is not supported!")
 							.showError();
 					return;
 				}
 			} else {
-				Dialogs.create().nativeTitleBar().title("Error")
+				Dialogs.create().style(DialogStyle.NATIVE).title("Error")
 						.message("File is not exists!")
 						.showError();
 				return;
 			}
 		} catch(JRException jrEx) {
 			jrEx.printStackTrace();
-			Dialogs.create().nativeTitleBar().title("Error")
+			Dialogs.create().style(DialogStyle.NATIVE).title("Error")
 					.message(jrEx.getMessage()).showError();
 		} catch (IOException ioEx) {
 			ioEx.printStackTrace();
-			Dialogs.create().nativeTitleBar().title("Error")
+			Dialogs.create().style(DialogStyle.NATIVE).title("Error")
 					.message(ioEx.getMessage()).showError();
 		}
 	}
@@ -701,7 +703,7 @@ public class SaleProductScreenCtrl {
 					protected void updateItem(Inventory i, boolean bln) {
 						super.updateItem(i, bln);
 						if(i != null) {
-							setText("[" + i.getProductCode() + "]" + i.getProductName()+ " (" + i.getQoh() + ")");
+							setText("[" + i.getProductCode() + "] " + i.getProductName()+ " (" + i.getQoh() + ")");
 						}
 					}
 				};

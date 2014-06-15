@@ -8,6 +8,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -28,7 +29,6 @@ import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FlowAction;
 
 import entity.Inventory;
-import entity.Product;
 
 @FXMLController("/fxml/QohProductScreen.fxml")
 public class QohProductScreenCtrl {
@@ -47,6 +47,9 @@ public class QohProductScreenCtrl {
 	
 	@FXML
 	private TableColumn<Inventory, String> productNameColumn;
+	
+	@FXML
+	private TableColumn<Inventory, String> typeCol;
 	
 	@FXML
 	private TableColumn<Inventory, String> qohColumn;
@@ -81,6 +84,7 @@ public class QohProductScreenCtrl {
 		ObservableList<Inventory> iObservableList = createInventoryData(true);
 		productCodeColumn.setCellValueFactory(new PropertyValueFactory<Inventory, String>("productCode"));
 		productNameColumn.setCellValueFactory(new PropertyValueFactory<Inventory, String>("productName"));
+		typeCol.setCellValueFactory(new PropertyValueFactory<Inventory, String>("productType"));
 		qohColumn.setCellValueFactory(new PropertyValueFactory<Inventory, String>("qoh"));
 		totalColumn.setCellValueFactory(new PropertyValueFactory<Inventory, String>("totalValue"));
 		filteredData = new FilteredList<>(iObservableList, new Predicate<Inventory>() {
@@ -89,7 +93,12 @@ public class QohProductScreenCtrl {
 				return true;
 			}
 		});
-		inventoryTableView.setItems(filteredData);
+		// 3. Wrap the FilteredList in a SortedList.
+		SortedList<Inventory> sortedData = new SortedList<>(filteredData);
+		// 4. Bind the SortedList comparator to the TableView comparator.
+		sortedData.comparatorProperty().bind(inventoryTableView.comparatorProperty());
+		// 5. Add sorted (and filtered) data to the table.
+		inventoryTableView.setItems(sortedData);
 		setListenerForSearchbox();
 		setListenerForOutOfStockCheckBox();
 	}
@@ -109,7 +118,8 @@ public class QohProductScreenCtrl {
 						
 						String lowerinputValue = searchBoxInputValue.toLowerCase();
 						if(i.getProductCode().toLowerCase().indexOf(lowerinputValue) != -1
-								|| i.getProductName().toLowerCase().indexOf(lowerinputValue) != -1) {
+								|| i.getProductName().toLowerCase().indexOf(lowerinputValue) != -1
+								|| i.getProductType().toLowerCase().indexOf(lowerinputValue) != -1) {
 							return true;
 						}
 						return false;

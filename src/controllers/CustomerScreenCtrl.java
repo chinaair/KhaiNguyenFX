@@ -8,6 +8,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -24,6 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
 
+import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
@@ -35,9 +37,7 @@ import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FlowAction;
 
 import components.ContextCellFactory;
-
 import entity.Customer;
-import entity.Product;
 
 @FXMLController("/fxml/CustomerScreen.fxml")
 public class CustomerScreenCtrl {
@@ -115,7 +115,12 @@ public class CustomerScreenCtrl {
 				return true;
 			}
 		});
-		customerTableView.setItems(filteredData);
+		// 3. Wrap the FilteredList in a SortedList.
+		SortedList<Customer> sortedData = new SortedList<>(filteredData);
+		// 4. Bind the SortedList comparator to the TableView comparator.
+		sortedData.comparatorProperty().bind(customerTableView.comparatorProperty());
+		// 5. Add sorted (and filtered) data to the table.
+		customerTableView.setItems(sortedData);
 		setListenerForSearchbox();
 	}
 	
@@ -168,7 +173,7 @@ public class CustomerScreenCtrl {
 								"select count(s) from Sale s where s.customer.id = :customerId",
 								Long.class).setParameter("customerId", currentCustomer.getId()).getSingleResult();
 				if(custQuantity != null && custQuantity > 0) {
-					Dialogs.create().nativeTitleBar().title("Error")
+					Dialogs.create().style(DialogStyle.NATIVE).title("Error")
 					.message("Khách hàng đang được sử dụng!")
 					.showError();
 					return;

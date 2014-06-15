@@ -30,9 +30,10 @@ import javax.persistence.Query;
 import org.controlsfx.control.ButtonBar;
 import org.controlsfx.control.ButtonBar.ButtonType;
 import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.AbstractDialogAction;
+import org.controlsfx.dialog.DefaultDialogAction;
 import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialog.DialogAction;
+import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.context.ApplicationContext;
@@ -42,6 +43,7 @@ import org.datafx.controller.context.ViewFlowContext;
 import org.datafx.controller.flow.FlowAction;
 
 import components.SaleContextCellFactory;
+
 import entity.CollectMoney;
 import entity.Inventory;
 import entity.ParcelItem;
@@ -95,13 +97,13 @@ public class SaleListScreenCtrl {
 	
 	private final TextField amount_txt = new TextField();
 	
-	private final DialogAction actionInputInfo = new AbstractDialogAction("Ok") {
+	private final DialogAction actionInputInfo = new DefaultDialogAction("Ok") {
 		{
 			ButtonBar.setType(this, ButtonType.OK_DONE);
 		}
 		
 		@Override
-		public void execute(ActionEvent ae) {
+		public void handle(ActionEvent ae) {
 			if (! this.isDisabled() && ae.getSource() instanceof Dialog) {
             	Dialog dlg = (Dialog) ae.getSource();
             	if(isValidData()) {
@@ -126,7 +128,7 @@ public class SaleListScreenCtrl {
             		saleTableView.getColumns().get(0).setVisible(true);
     				dlg.hide();
     			} else {
-    				Dialogs.create().nativeTitleBar()
+    				Dialogs.create().style(DialogStyle.NATIVE)
     			      .title("Error")
     			      .message( "Hãy nhập thông tin đúng định dạng...")
     			      .showError();
@@ -251,7 +253,7 @@ public class SaleListScreenCtrl {
 	}
 	
 	private Action showInputInfoDialog() {
-		Dialog dlg = new Dialog(null, "Nhập thông tin", false, true);
+		Dialog dlg = new Dialog(null, "Nhập thông tin", false, DialogStyle.NATIVE);
 		GridPane content = new GridPane();
 	     content.setHgap(10);
 	     content.setVgap(10);

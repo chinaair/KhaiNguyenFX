@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
 
+import org.controlsfx.dialog.DialogStyle;
 import org.controlsfx.dialog.Dialogs;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.context.ApplicationContext;
@@ -134,7 +135,7 @@ public class EditCustomerScreenCtrl {
 	private boolean checkValid() {
 		if(codeTxt.getText().isEmpty()
 				|| nameTxt.getText().isEmpty()) {
-			Dialogs.create().nativeTitleBar()
+			Dialogs.create().style(DialogStyle.NATIVE)
 		      .title("Error")
 		      .message( "Hãy nhập thông tin cần thiết...")
 		      .showError();

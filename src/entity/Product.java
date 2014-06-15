@@ -24,6 +24,9 @@ public class Product {
 	@Column(name="NAME")
 	private String name;
 	
+	@Column(name="TYPE")
+	private String type;
+	
 	@Column(name="ENABLE")
 	private boolean enable;
 	
@@ -58,6 +61,14 @@ public class Product {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public boolean isEnable() {
 		return enable;
 	}
